@@ -6,10 +6,10 @@ public class Student {
     private final Float averageScore;
     private final String reportCardNumber;
 
-    private Student(String groupNumber, Float averageScore, String reportCardNumber) {
-        this.groupNumber = groupNumber;
-        this.averageScore = averageScore;
-        this.reportCardNumber = reportCardNumber;
+    private Student(Builder builder) {
+        this.groupNumber = builder.groupNumber;
+        this.averageScore = builder.averageScore;
+        this.reportCardNumber = builder.reportCardNumber;
     }
 
     public String getGroupNumber() {
@@ -55,7 +55,7 @@ public class Student {
         }
 
         public Student build() {
-            return new Student(this.groupNumber, this.averageScore, this.reportCardNumber);
+            return new Student(this);
         }
 
     }

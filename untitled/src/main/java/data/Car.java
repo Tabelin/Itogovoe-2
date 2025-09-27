@@ -6,10 +6,10 @@ public class Car {
     private final Integer power;
     private final Integer yearOfManufacture;
 
-    private Car(String model, Integer power, Integer yearOfManufacture) {
-        this.model = model;
-        this.power = power;
-        this.yearOfManufacture = yearOfManufacture;
+    private Car(Builder builder) {
+        this.model = builder.model;
+        this.power = builder.power;
+        this.yearOfManufacture = builder.yearOfManufacture;
     }
 
     public String getModel() {
@@ -55,7 +55,7 @@ public class Car {
         }
 
         public Car build() {
-            return new Car(this.model, this.power, this.yearOfManufacture);
+            return new Car(this);
         }
 
     }

@@ -8,10 +8,10 @@ public class Book {
     private final String title;
     private final Integer numOfPages;
 
-    private Book(String authors, String title, Integer numOfPages) {
-        this.authors = authors;
-        this.title = title;
-        this.numOfPages = numOfPages;
+    private Book(Builder builder) {
+        this.authors = builder.authors;
+        this.title = builder.title;
+        this.numOfPages = builder.numOfPages;
     }
 
     public String getAuthors() {
@@ -57,7 +57,7 @@ public class Book {
         }
 
         public Book build() {
-            return new Book(this.authors, this.title, this.numOfPages);
+            return new Book(this);
         }
 
     }
