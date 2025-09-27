@@ -33,12 +33,6 @@ public class Car {
         public Builder() {
         }
 
-        public Builder(String model, Integer power, Integer yearOfManufacture) {
-            this.model = model;
-            this.power = power;
-            this.yearOfManufacture = yearOfManufacture;
-        }
-
         public Builder setModel(String model) {
             this.model = model;
             return this;

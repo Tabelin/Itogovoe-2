@@ -33,12 +33,6 @@ public class Student {
         public Builder() {
         }
 
-        public Builder(String groupNumber, Float averageScore, String reportCardNumber) {
-            this.groupNumber = groupNumber;
-            this.averageScore = averageScore;
-            this.reportCardNumber = reportCardNumber;
-        }
-
         public Builder setGroupNumber(String groupNumber) {
             this.groupNumber = groupNumber;
             return this;

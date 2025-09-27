@@ -2,20 +2,18 @@ package data;
 
 public class Book {
 
-    /* В качестве формата ввода можно взять перечисление авторов через точку с запятой, затем можно с помощью split()
-    легко получить массив авторов и работать с ним */
-    private final String authors;
+    private final String author;
     private final String title;
     private final Integer numOfPages;
 
     private Book(Builder builder) {
-        this.authors = builder.authors;
+        this.author = builder.author;
         this.title = builder.title;
         this.numOfPages = builder.numOfPages;
     }
 
-    public String getAuthors() {
-        return this.authors;
+    public String getAuthor() {
+        return this.author;
     }
 
     public String getTitle() {
@@ -28,21 +26,15 @@ public class Book {
 
     public static class Builder {
 
-        private String authors;
+        private String author;
         private String title;
         private Integer numOfPages;
 
         public Builder() {
         }
 
-        public Builder(String authors, String title, Integer numOfPages) {
-            this.authors = authors;
-            this.title = title;
-            this.numOfPages = numOfPages;
-        }
-
-        public Builder setAuthors(String authors) {
-            this.authors = authors;
+        public Builder setAuthors(String author) {
+            this.author = author;
             return this;
         }
 
