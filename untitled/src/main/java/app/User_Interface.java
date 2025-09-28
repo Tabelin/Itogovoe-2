@@ -9,13 +9,13 @@ import data.Book;
 
 import java.util.Scanner;
 
-public class User_Interface. {
+public class User_Interface {
      public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
         while (running) {
-            System.out.println("    Выберите действие:");
+            System.out.println("    Выбор действий:");
             System.out.println("1. Заполнить коллекцию (из файла, рандом, вручную)");
             System.out.println("2. Сортировать");
             System.out.println("3. Найти элемент (бинарный поиск)");
