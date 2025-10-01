@@ -62,7 +62,7 @@ public class Book {
         public Builder() {
         }
 
-        public Builder setAuthors(String author) {
+        public Builder setAuthor(String author) {
             this.author = author;
             return this;
         }
