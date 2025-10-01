@@ -1,33 +1,53 @@
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.ToIntFunction;
 
 public class AdditionalSorter<T> {
 
-    private Comparator<T> comparator;
-
+    private final ToIntFunction<T> extractor;
     private final ExecutorService executor;
 
     private AdditionalSorter(Builder<T> builder) {
-        this.comparator = builder.comparator;
         this.executor = builder.executor;
+        this.extractor = builder.extractor;
     }
 
-    public void changeComparatorTo(Comparator<T> comparator) {
-        this.comparator = comparator;
+    public List<T> additionalSort(List<T> arrayForSort) {
+        // Достаем из исходного массива объекты с четными значениями полей
+        List<T> arrayOfObjWithEvenFields = arrayForSort.stream()
+                .filter(obj -> extractor.applyAsInt(obj) % 2 == 0)
+                .toList();
+
+        // Сортируем полученные элементы с четными полями
+        List<T> sortedObjWithEvenFields = sortEvenFields(arrayOfObjWithEvenFields);
+
+        return getArrayWithInsertedElements(arrayForSort, sortedObjWithEvenFields);
     }
 
-    public List<T> sort(List<T> arrayForSort) {
+    private List<T> getArrayWithInsertedElements(List<T> originalArray, List<T> arrayForInsert) {
+        int indexInArrayForInsert = 0;
+
+        for (int i = 0; i < originalArray.size(); i++) {
+            if (extractor.applyAsInt(originalArray.get(i)) % 2 == 0) {
+                originalArray.set(i, arrayForInsert.get(indexInArrayForInsert));
+                indexInArrayForInsert++;
+            }
+        }
+
+        return originalArray;
+    }
+
+    private List<T> sortEvenFields(List<T> arrayForSort) {
         Future<List<T>> sortResult = executor.submit(() -> {
             if (arrayForSort.size() == 1 || arrayForSort.isEmpty()) {
                 return arrayForSort;
             } else {
                 int midIndex = arrayForSort.size() / 2;
-                List<T> sortedLeftArray = sort(arrayForSort.subList(0, midIndex));
-                List<T> sortedRightArray = sort(arrayForSort.subList(midIndex, arrayForSort.size()));
+                List<T> sortedLeftArray = sortEvenFields(arrayForSort.subList(0, midIndex));
+                List<T> sortedRightArray = sortEvenFields(arrayForSort.subList(midIndex, arrayForSort.size()));
 
                 return mergeSortedPartsOfArray(sortedLeftArray, sortedRightArray);
             }
@@ -63,7 +83,7 @@ public class AdditionalSorter<T> {
                 indexInLeftArray = leftArray.size();
                 continue;
             }
-            if (comparator.compare(leftArray.get(indexInLeftArray), rightArray.get(indexInRightArray)) >= 0) {
+            if (extractor.applyAsInt(leftArray.get(indexInLeftArray)) >= extractor.applyAsInt(rightArray.get(indexInRightArray))) {
                 resultArray.add(rightArray.get(indexInRightArray));
                 indexInRightArray++;
             } else {
@@ -77,14 +97,14 @@ public class AdditionalSorter<T> {
 
     public static class Builder<T> {
 
-        private Comparator<T> comparator;
+        private ToIntFunction<T> extractor;
         private ExecutorService executor;
 
         public Builder() {
         }
 
-        public Builder<T> setComparator(Comparator<T> comparator) {
-            this.comparator = comparator;
+        public Builder<T> setExtractor(ToIntFunction<T> extractor) {
+            this.extractor = extractor;
             return this;
         }
 

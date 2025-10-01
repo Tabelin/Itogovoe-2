@@ -6,7 +6,7 @@ public class Student {
 
     private final String groupNumber;
     private final Float averageScore;
-    private final String reportCardNumber;
+    private final Integer reportCardNumber;
 
     private Student(Builder builder) {
         this.groupNumber = builder.groupNumber;
@@ -20,26 +20,26 @@ public class Student {
     public static final Comparator<Student> BY_AVERAGE_SCORE =
             Comparator.comparingDouble(Student::getAverageScore);
 
-    public static final Comparator<Student> BY_REPORT_CARD_NUM_CASE_INSENSITIVE =
-            Comparator.comparing(Student::getReportCardNumber, String.CASE_INSENSITIVE_ORDER);
+    public static final Comparator<Student> BY_REPORT_CARD_NUM =
+            Comparator.comparingInt(Student::getReportCardNumber);
 
     public static final Comparator<Student> BY_GROUP_NUM_THEN_AVG_SCORE_THEN_CARD_NUM =
-            BY_GROUP_NUMBER_CASE_INSENSITIVE.thenComparing(BY_AVERAGE_SCORE).thenComparing(BY_REPORT_CARD_NUM_CASE_INSENSITIVE);
+            BY_GROUP_NUMBER_CASE_INSENSITIVE.thenComparing(BY_AVERAGE_SCORE).thenComparing(BY_REPORT_CARD_NUM);
 
     public static final Comparator<Student> BY_GROUP_NUM_THEN_CARD_NUM_THEN_AVG_SCORE =
-            BY_GROUP_NUMBER_CASE_INSENSITIVE.thenComparing(BY_REPORT_CARD_NUM_CASE_INSENSITIVE).thenComparing(BY_AVERAGE_SCORE);
+            BY_GROUP_NUMBER_CASE_INSENSITIVE.thenComparing(BY_REPORT_CARD_NUM).thenComparing(BY_AVERAGE_SCORE);
 
     public static final Comparator<Student> BY_AVG_SCORE_THEN_GROUP_NUM_THEN_CARD_NUM =
-            BY_AVERAGE_SCORE.thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE).thenComparing(BY_REPORT_CARD_NUM_CASE_INSENSITIVE);
+            BY_AVERAGE_SCORE.thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE).thenComparing(BY_REPORT_CARD_NUM);
 
     public static final Comparator<Student> BY_AVG_SCORE_THEN_CARD_NUM_THEN_GROUP_NUM =
-            BY_AVERAGE_SCORE.thenComparing(BY_REPORT_CARD_NUM_CASE_INSENSITIVE).thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE);
+            BY_AVERAGE_SCORE.thenComparing(BY_REPORT_CARD_NUM).thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE);
 
     public static final Comparator<Student> BY_CARD_NUM_THEN_GROUP_NUM_THEN_AVG_SCORE =
-            BY_REPORT_CARD_NUM_CASE_INSENSITIVE.thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE).thenComparing(BY_AVERAGE_SCORE);
+            BY_REPORT_CARD_NUM.thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE).thenComparing(BY_AVERAGE_SCORE);
 
     public static final Comparator<Student> BY_CARD_NUM_THEN_AVG_SCORE_THEN_GROUP_NUM =
-            BY_REPORT_CARD_NUM_CASE_INSENSITIVE.thenComparing(BY_AVERAGE_SCORE).thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE);
+            BY_REPORT_CARD_NUM.thenComparing(BY_AVERAGE_SCORE).thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE);
 
     public String getGroupNumber() {
         return this.groupNumber;
@@ -49,7 +49,7 @@ public class Student {
         return this.averageScore;
     }
 
-    public String getReportCardNumber() {
+    public Integer getReportCardNumber() {
         return this.reportCardNumber;
     }
 
@@ -57,7 +57,7 @@ public class Student {
 
         private String groupNumber;
         private Float averageScore;
-        private String reportCardNumber;
+        private Integer reportCardNumber;
 
         public Builder() {
         }
@@ -72,7 +72,7 @@ public class Student {
             return this;
         }
 
-        public Builder setReportCardNumber(String reportCardNumber) {
+        public Builder setReportCardNumber(Integer reportCardNumber) {
             this.reportCardNumber = reportCardNumber;
             return this;
         }
