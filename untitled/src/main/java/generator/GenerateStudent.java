@@ -33,12 +33,4 @@ public class GenerateStudent {
         return students;
     }
 
-    public static void main(String[] args) {
-        List<Student> students = generateRandomStudents(20);
-        for (Student s : students) {
-            System.out.println("Группа: " + s.getGroupNumber()
-                + ", Средний балл: " + String.format("%.2f", s.getAverageScore())
-                + ", Номер зачетки: " + s.getReportCardNumber());
-        }
-    }
 }
