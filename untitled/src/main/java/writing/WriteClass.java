@@ -6,7 +6,6 @@ import data.Student;
 import generator.GenerateBook;
 import generator.GenerateCar;
 import generator.GenerateStudent;
-import generator.RussianSurnameGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -74,13 +73,13 @@ public class WriteClass {
     }
 
     public static void main(String[] args) {
-        List<Book> books = GenerateBook.generateRandomBooks(5);
-        writeBookData(books);
+        // List<Book> books = GenerateBook.generateRandomBooks(5);
+        // writeBookData(books);
 
-        List<Car> cars = GenerateCar.generateRandomCars(5);
-        writeCarData(cars);
+        // List<Car> cars = GenerateCar.generateRandomCars(5);
+        // writeCarData(cars);
 
-        List<Student> students = GenerateStudent.generateRandomStudents(5);
-        writeStudentData(students);
+        // List<Student> students = GenerateStudent.generateRandomStudents(5);
+        // writeStudentData(students);
     }
 }
