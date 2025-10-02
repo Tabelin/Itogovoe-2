@@ -154,7 +154,6 @@ public class User_Interface {
             case "Car":
                 currentCollection = IntStream.range(0, count)
                     .mapToObj(i -> {
-                        // Генерируем ОДИН Car за раз → чистое использование стрима
                         return GenerateCar.generateRandomCars(1).get(0);
                     })
                     .collect(Collectors.toList());
@@ -458,8 +457,41 @@ public class User_Interface {
     }
 
     private static void searchElement() {                                                   // 4 бинарный поиск
-        
-        System.out.println("бинарный поиск выполнен (нет).");
+       if (currentCollection == null || currentCollection.isEmpty()) {
+        System.out.println("Сначала заполните коллекцию!");
+        return;
+    }
+
+    scanner.nextLine(); // очистка
+        System.out.print("Введите текст для поиска: ");
+        String query = scanner.nextLine().toLowerCase();
+
+        List<Object> results = currentCollection.stream()
+            .filter(obj -> {
+                if (obj instanceof Car car) {
+                    return car.getModel().toLowerCase().contains(query) ||
+                           String.valueOf(car.getPower()).contains(query) ||
+                           String.valueOf(car.getYearOfManufacture()).contains(query);
+                } else if (obj instanceof Student student) {
+                    return student.getSurname().toLowerCase().contains(query) ||
+                           student.getGroupNumber().toLowerCase().contains(query) ||
+                           String.valueOf(student.getAverageScore()).contains(query) ||
+                           student.getReportCardNumber().toLowerCase().contains(query);
+                } else if (obj instanceof Book book) {
+                    return book.getTitle().toLowerCase().contains(query) ||
+                           book.getAuthor().toLowerCase().contains(query) ||
+                           String.valueOf(book.getNumOfPages()).contains(query);
+                }
+                return false;
+            })
+            .toList();
+
+        if (!results.isEmpty()) {
+            System.out.println("Найдено " + results.size() + " элементов:");
+            printCollection(results, 10);
+        } else {
+            System.out.println("Ничего не найдено.");
+        }
     }
         
     
@@ -531,12 +563,12 @@ public class User_Interface {
         System.out.printf("%d. ", i + 1);
 
             if (obj instanceof Car car) {
-                System.out.println(car.getModel() + " | Мощность: " + car.getPower() + " л.с. | Год: " + car.getYearOfManufacture());
+                System.out.println(car.getModel() + "Мощность: " + car.getPower() + " л.с. Год: " + car.getYearOfManufacture());
             } else if (obj instanceof Student student) {
-                System.out.println(student.getSurname() + " | Группа: " + student.getGroupNumber() +
-                        " | Балл: " + String.format("%.2f", student.getAverageScore()));
+                System.out.println(student.getSurname() + "Группа: " + student.getGroupNumber() +
+                        " Балл: " + String.format("%.2f", student.getAverageScore()));
             } else if (obj instanceof Book book) {
-                System.out.println(book.getTitle() + " | Автор: " + book.getAuthor() + " | Страниц: " + book.getNumOfPages());
+                System.out.println(book.getTitle() + "Автор: " + book.getAuthor() + " Страниц: " + book.getNumOfPages());
             }
         }
     }

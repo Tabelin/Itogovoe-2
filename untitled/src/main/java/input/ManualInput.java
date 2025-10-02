@@ -13,7 +13,6 @@ public class ManualInput {
     private static final Scanner scanner = new Scanner(System.in);
 
 
-
     public static Car inputCar() {
 
         System.out.println("Введите данные автомобиля:");
