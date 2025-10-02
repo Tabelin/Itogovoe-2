@@ -1,4 +1,4 @@
-package number_entries_in_list;
+package untitled.src.main.java.number_entries_in_list;
 
 import java.util.Comparator;
 import java.util.List;
