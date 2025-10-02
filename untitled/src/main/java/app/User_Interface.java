@@ -4,12 +4,20 @@ import data.Car;
 import data.Student;
 import data.Book;
 
+import input.ManualInput;
+
 import generator.GenerateBook;
 import generator.GenerateCar;
 import generator.GenerateStudent;
 
+import binSearch.BinSearch;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class User_Interface {
 
@@ -114,7 +122,7 @@ public class User_Interface {
                 System.out.println("чтение из файла не реализовано.");
                 break;
             case 3:
-                System.out.println("ручной ввод не реализован.");
+                manualInputData(count);                                                         
                 break;
             default:
                 System.out.println("Неверный выбор.");
@@ -126,7 +134,7 @@ public class User_Interface {
     }
 
      private static void generateRandomData(int count) {                                    // 2.1 рандом заполнение
-        switch (currentType) {
+        switch (currentType) {                                                              //заполнение коллекции должно быть посредством стрима!!!
             case "Car":
                 currentCollection = GenerateCar.generateRandomCars(count);
                 break;
@@ -142,8 +150,56 @@ public class User_Interface {
         }
         System.out.println("Сгенерировано " + count + " элементов типа " + currentType);
     }
+
+
+
                                                                                             //2.2 чтение из файла
+
+
+
+
+        
                                                                                             //2.3 ручной ввод
+
+    private static void manualInputData(int count) {
+    switch (currentType) {
+        case "Car":
+            List<Car> cars = IntStream.range(0, count)
+            .mapToObj(i -> {
+                System.out.printf("Ввод автомобиля %d/%d:\n", i + 1, count);
+                return ManualInput.inputCar();
+            })
+            .collect(Collectors.toList());
+         currentCollection = cars;
+          break;
+
+        case "Student":
+            List<Student> students = IntStream.range(0, count)
+            .mapToObj(i -> {
+                System.out.printf("Ввод студента %d/%d:\n", i + 1, count);
+                return ManualInput.inputStudent();
+            })
+            .collect(Collectors.toList());
+        currentCollection = students;
+         break;
+
+
+        case "Book":
+            List<Book> books = IntStream.range(0, count)
+            .mapToObj(i -> {
+                System.out.printf("Ввод книги %d/%d:\n", i + 1, count);
+                return ManualInput.inputBook();
+            })
+            .collect(Collectors.toList());
+    currentCollection = books;
+    break;
+
+        default:
+            System.out.println("Неизвестный тип данных.");
+    }
+    System.out.println("Ручной ввод завершён. Заполнено: " + count + " элементов.");
+}
+
 
     private static void sortCollection() {                                                  // 3 сортировка 
         
