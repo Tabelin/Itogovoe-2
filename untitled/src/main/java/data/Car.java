@@ -1,4 +1,4 @@
-package data;
+package untitled.src.main.java.data;
 
 import java.util.Comparator;
 import java.util.Objects;
