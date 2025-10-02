@@ -72,6 +72,7 @@ public class WriteClass {
                 + "/ " + student.getReportCardNumber());
     }
 
+    
 //    public static void main(String[] args) {
 //        List<Book> books = GenerateBook.generateRandomBooks(5);
 //        writeBookData(books);
