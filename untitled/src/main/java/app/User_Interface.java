@@ -13,14 +13,17 @@ import generator.GenerateStudent;
 import writing.WriteClass;                       //чтение/запись в/из файл(а)
 import java.util.function.Function;
 
+import sort.SimpleMergeSort;                    //сортировка
+
 import binSearch.BinSearch;                     //поиск
 
-import java.util.ArrayList;
+import java.util.ArrayList;                             
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
-
+import java.util.Comparator;
+import java.util.List;                              
+import java.util.Objects;                               
+import java.util.Scanner;                               
+                                
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -287,12 +290,8 @@ public class User_Interface {
         }
     }
 
-
-
-        
-                                                                                            //2.3 ручной ввод
-
-    private static void manualInputData(int count) {
+                                                                              
+    private static void manualInputData(int count) {                                        //2.3 ручной ввод
         Scanner inputScanner = new Scanner(System.in);
 
     switch (currentType) {
@@ -336,8 +335,126 @@ public class User_Interface {
 
     private static void sortCollection() {                                                  // 3 сортировка 
         
-        System.out.println("коллекция отсортирована (нет).");
+        if (currentCollection == null || currentCollection.isEmpty()) {
+        System.out.println("Сначала заполните коллекцию!");
+        return;
+        }
 
+        System.out.println("Выберите режим сортировки:");
+        System.out.println("1. По одному полю");
+        System.out.println("2. По нескольким полям (приоритет)");
+
+        int mode = getIntInput("Ваш выбор: ");
+
+        Comparator<?> comparator;
+
+        switch (mode) {
+            case 1:
+                comparator = getSingleFieldComparator();
+                break;
+            case 2:
+                comparator = getMultiFieldComparator();
+                break;
+            default:
+                System.out.println("Неверный ввод.");         //еше дополнительно к основным сортировкам реализовать эти же алгоритмы сортировки таким образом, что объекты классов будут сортироваться по какому-либо числовому полю: объекты с четными значениями этого поля должны быть отсортированы в натуральном порядке, а с нечетными – оставаться на исходных
+                return;                                             //доп сортировка?
+        }  
+        
+        if (comparator == null) return;
+
+        @SuppressWarnings("unchecked")
+        List<Object> list = (List<Object>) currentCollection;
+           
+        try {
+            System.out.println("Начинаем сортировку...");
+            SimpleMergeSort.mergeSort(list, (Comparator<Object>) comparator);
+            System.out.println(" Коллекция успешно отсортирована!");
+           
+            // Показать первые 5 элементов
+            System.out.println("Первые 5 элементов после сортировки:");
+            for (int i = 0; i < Math.min(5, currentCollection.size()); i++) {
+                printCollection(currentCollection, 10);
+            }
+        
+        } catch (Exception e) {
+            System.err.println("Ошибка при сортировке: " + e.getMessage());
+        }
+
+    }
+
+
+    private static Comparator<?> getSingleFieldComparator() {
+    System.out.println("Выберите поле для сортировки:");
+    System.out.println("1. По модели / группе / автору");
+    System.out.println("2. По мощности / среднему баллу / количеству страниц");
+    System.out.println("3. По году выпуска / номеру зачетки / названию");
+
+    int choice = getIntInput("Ваш выбор: ");
+
+    switch (currentType) {
+        case "Car":
+            return switch (choice) {
+                case 1 -> (Comparator<Car>) (c1, c2) -> c1.getModel().compareTo(c2.getModel());
+                case 2 -> (Comparator<Car>) (c1, c2) -> Integer.compare(c1.getPower(), c2.getPower());
+                case 3 -> (Comparator<Car>) (c1, c2) -> Integer.compare(c1.getYearOfManufacture(), c2.getYearOfManufacture());
+                default -> {
+                    System.out.println("Неверный выбор.");
+                    yield null;
+                }
+            };
+
+        case "Student":
+            return switch (choice) {
+                case 1 -> (Comparator<Student>) (s1, s2) -> s1.getGroupNumber().compareTo(s2.getGroupNumber());
+                case 2 -> (Comparator<Student>) (s1, s2) -> Float.compare(s1.getAverageScore(), s2.getAverageScore());
+                case 3 -> (Comparator<Student>) (s1, s2) -> s1.getReportCardNumber().compareTo(s2.getReportCardNumber());
+                default -> {
+                    System.out.println("Неверный выбор.");
+                    yield null;
+                }
+            };
+
+        case "Book":
+            return switch (choice) {
+                case 1 -> (Comparator<Book>) (b1, b2) -> b1.getAuthor().compareTo(b2.getAuthor());
+                case 2 -> (Comparator<Book>) (b1, b2) -> Integer.compare(b1.getNumOfPages(), b2.getNumOfPages());
+                case 3 -> (Comparator<Book>) (b1, b2) -> b1.getTitle().compareTo(b2.getTitle());
+                default -> {
+                    System.out.println("Неверный выбор.");
+                    yield null;
+                }
+            };
+
+        default:
+            System.out.println("Неизвестный тип данных.");
+            return null;
+        }
+    }
+
+
+    private static Comparator<?> getMultiFieldComparator() {
+    System.out.println("Сортировка по нескольким полям (в порядке приоритета).");
+
+    switch (currentType) {
+        case "Car":
+            return (Comparator<Car>) Comparator.comparing(Car::getModel)
+                .thenComparingInt(Car::getPower)
+                .thenComparingInt(Car::getYearOfManufacture);
+
+        case "Student":
+            return (Comparator<Student>) Comparator.comparing(Student::getGroupNumber)
+                .thenComparingDouble(Student::getAverageScore)
+                .thenComparing(Student::getReportCardNumber);
+
+        case "Book":
+            return (Comparator<Book>) Comparator.comparing(Book::getAuthor)
+                .thenComparing(Book::getTitle)
+                .thenComparingInt(Book::getNumOfPages);
+
+        default:
+            System.out.println("Неизвестный тип данных.");
+            return null;
+        }
     }
 
     private static void searchElement() {                                                   // 4 бинарный поиск
@@ -397,5 +514,30 @@ public class User_Interface {
             scanner.next(); // очистка
         }
         return scanner.nextInt();
+    }
+
+
+
+    private static void printCollection(List<?> collection, int limit) {                             //вывод доллекции
+    if (collection == null || collection.isEmpty()) {
+        System.out.println("Коллекция пуста.");
+        return;
+    }
+    int size = Math.min(collection.size(), limit);
+
+    System.out.println("Первые " + size + " элементов");
+        for (int i = 0; i < size; i++) {
+        Object obj = collection.get(i);
+        System.out.printf("%d. ", i + 1);
+
+            if (obj instanceof Car car) {
+                System.out.println(car.getModel() + " | Мощность: " + car.getPower() + " л.с. | Год: " + car.getYearOfManufacture());
+            } else if (obj instanceof Student student) {
+                System.out.println(student.getSurname() + " | Группа: " + student.getGroupNumber() +
+                        " | Балл: " + String.format("%.2f", student.getAverageScore()));
+            } else if (obj instanceof Book book) {
+                System.out.println(book.getTitle() + " | Автор: " + book.getAuthor() + " | Страниц: " + book.getNumOfPages());
+            }
+        }
     }
 }
