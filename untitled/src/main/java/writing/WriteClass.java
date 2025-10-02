@@ -59,27 +59,27 @@ public class WriteClass {
     }
 
     public static void writeBookData(List<Book> books) {
-        writeData("Book.txt", books, book -> book.getAuthor() + " - " + book.getTitle() + ", " + book.getNumOfPages() + " стр.");
+        writeData("Book.txt", books, book -> book.getAuthor()+ " " + book.getTitle() + " " + book.getNumOfPages());
     }
 
     public static void writeCarData(List<Car> cars) {
-        writeData("Car.txt", cars, car -> car.getModel() + ", " + car.getPower() + " л.с., " + car.getYearOfManufacture());
+        writeData("Car.txt", cars, car -> car.getModel() + " " + car.getPower() + " " + car.getYearOfManufacture());
     }
 
     public static void writeStudentData(List<Student> students) {
-        writeData("Student.txt", students, student -> "Группа: " + student.getGroupNumber()
-                + ", Средний балл: " + String.format("%.2f", student.getAverageScore())
-                + ", Номер зачетки: " + student.getReportCardNumber());
+        writeData("Student.txt", students, student -> student.getGroupNumber()
+                + " " + String.format("%.2f", student.getAverageScore())
+                + " " + student.getReportCardNumber());
     }
 
     public static void main(String[] args) {
-        // List<Book> books = GenerateBook.generateRandomBooks(5);
-        // writeBookData(books);
+        List<Book> books = GenerateBook.generateRandomBooks(5);
+        writeBookData(books);
 
-        // List<Car> cars = GenerateCar.generateRandomCars(5);
-        // writeCarData(cars);
+        List<Car> cars = GenerateCar.generateRandomCars(5);
+        writeCarData(cars);
 
-        // List<Student> students = GenerateStudent.generateRandomStudents(5);
-        // writeStudentData(students);
+        List<Student> students = GenerateStudent.generateRandomStudents(5);
+        writeStudentData(students);
     }
 }
