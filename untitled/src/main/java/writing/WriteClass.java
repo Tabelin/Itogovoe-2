@@ -59,17 +59,17 @@ public class WriteClass {
     }
 
     public static void writeBookData(List<Book> books) {
-        writeData("Book.txt", books, book -> book.getAuthor()+ " " + book.getTitle() + " " + book.getNumOfPages());
+        writeData("Book.txt", books, book -> book.getAuthor()+ "/ " + book.getTitle() + "/ " + book.getNumOfPages());
     }
 
     public static void writeCarData(List<Car> cars) {
-        writeData("Car.txt", cars, car -> car.getModel() + " " + car.getPower() + " " + car.getYearOfManufacture());
+        writeData("Car.txt", cars, car -> car.getModel() + "/ " + car.getPower() + "/ " + car.getYearOfManufacture());
     }
 
     public static void writeStudentData(List<Student> students) {
         writeData("Student.txt", students, student -> student.getGroupNumber()
-                + " " + String.format("%.2f", student.getAverageScore())
-                + " " + student.getReportCardNumber());
+                + "/ " + String.format("%.2f", student.getAverageScore())
+                + "/ " + student.getReportCardNumber());
     }
 
 //    public static void main(String[] args) {
