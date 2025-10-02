@@ -1,6 +1,7 @@
 package data;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 public class Book {
 
@@ -14,32 +15,32 @@ public class Book {
         this.numOfPages = builder.numOfPages;
     }
 
-    public static final Comparator<Book> BY_AUTHOR_CASE_INSENSITIVE =
+    private static final Comparator<Book> BY_AUTHOR_CASE_INSENSITIVE =
             Comparator.comparing(Book::getAuthor, String.CASE_INSENSITIVE_ORDER);
 
-    public static final Comparator<Book> BY_TITLE_CASE_INSENSITIVE =
+    private static final Comparator<Book> BY_TITLE_CASE_INSENSITIVE =
             Comparator.comparing(Book::getTitle, String.CASE_INSENSITIVE_ORDER);
 
-    public static final Comparator<Book> BY_PAGES =
+    private static final Comparator<Book> BY_PAGES =
             Comparator.comparingInt(Book::getNumOfPages);
 
     public static final Comparator<Book> BY_AUTHOR_THEN_TITLE_THEN_PAGES =
             BY_AUTHOR_CASE_INSENSITIVE.thenComparing(BY_TITLE_CASE_INSENSITIVE).thenComparing(BY_PAGES);
 
-    public static final Comparator<Book> BY_AUTHOR_THEN_PAGES_THEN_TITLE =
-            BY_AUTHOR_CASE_INSENSITIVE.thenComparing(BY_PAGES).thenComparing(BY_TITLE_CASE_INSENSITIVE);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return Objects.equals(author, book.getAuthor()) &&
+                Objects.equals(title, book.getTitle()) &&
+                (int) numOfPages == book.getNumOfPages();
+    }
 
-    public static final Comparator<Book> BY_TITLE_THEN_AUTHOR_THEN_PAGES =
-            BY_TITLE_CASE_INSENSITIVE.thenComparing(BY_AUTHOR_CASE_INSENSITIVE).thenComparing(BY_PAGES);
-
-    public static final Comparator<Book> BY_TITLE_THEN_PAGES_THEN_AUTHOR =
-            BY_TITLE_CASE_INSENSITIVE.thenComparing(BY_PAGES).thenComparing(BY_AUTHOR_CASE_INSENSITIVE);
-
-    public static final Comparator<Book> BY_PAGES_THEN_AUTHOR_THEN_TITLE =
-            BY_PAGES.thenComparing(BY_AUTHOR_CASE_INSENSITIVE).thenComparing(BY_TITLE_CASE_INSENSITIVE);
-
-    public static final Comparator<Book> BY_PAGES_THEN_TITLE_THEN_AUTHOR =
-            BY_PAGES.thenComparing(BY_TITLE_CASE_INSENSITIVE).thenComparing(BY_AUTHOR_CASE_INSENSITIVE);
+    @Override
+    public int hashCode() {
+        return Objects.hash(author, title, numOfPages);
+    }
 
     public String getAuthor() {
         return this.author;

@@ -1,6 +1,7 @@
 package data;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 public class Student {
 
@@ -14,32 +15,32 @@ public class Student {
         this.reportCardNumber = builder.reportCardNumber;
     }
 
-    public static final Comparator<Student> BY_GROUP_NUMBER_CASE_INSENSITIVE =
+    private static final Comparator<Student> BY_GROUP_NUMBER_CASE_INSENSITIVE =
             Comparator.comparing(Student::getGroupNumber, String.CASE_INSENSITIVE_ORDER);
 
-    public static final Comparator<Student> BY_AVERAGE_SCORE =
+    private static final Comparator<Student> BY_AVERAGE_SCORE =
             Comparator.comparingDouble(Student::getAverageScore);
 
-    public static final Comparator<Student> BY_REPORT_CARD_NUM =
+    private static final Comparator<Student> BY_REPORT_CARD_NUM =
             Comparator.comparingInt(Student::getReportCardNumber);
 
     public static final Comparator<Student> BY_GROUP_NUM_THEN_AVG_SCORE_THEN_CARD_NUM =
             BY_GROUP_NUMBER_CASE_INSENSITIVE.thenComparing(BY_AVERAGE_SCORE).thenComparing(BY_REPORT_CARD_NUM);
 
-    public static final Comparator<Student> BY_GROUP_NUM_THEN_CARD_NUM_THEN_AVG_SCORE =
-            BY_GROUP_NUMBER_CASE_INSENSITIVE.thenComparing(BY_REPORT_CARD_NUM).thenComparing(BY_AVERAGE_SCORE);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return Objects.equals(groupNumber, student.getGroupNumber()) &&
+                Double.compare(averageScore, student.getAverageScore()) == 0 &&
+                (int) reportCardNumber == student.getReportCardNumber();
+    }
 
-    public static final Comparator<Student> BY_AVG_SCORE_THEN_GROUP_NUM_THEN_CARD_NUM =
-            BY_AVERAGE_SCORE.thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE).thenComparing(BY_REPORT_CARD_NUM);
-
-    public static final Comparator<Student> BY_AVG_SCORE_THEN_CARD_NUM_THEN_GROUP_NUM =
-            BY_AVERAGE_SCORE.thenComparing(BY_REPORT_CARD_NUM).thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE);
-
-    public static final Comparator<Student> BY_CARD_NUM_THEN_GROUP_NUM_THEN_AVG_SCORE =
-            BY_REPORT_CARD_NUM.thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE).thenComparing(BY_AVERAGE_SCORE);
-
-    public static final Comparator<Student> BY_CARD_NUM_THEN_AVG_SCORE_THEN_GROUP_NUM =
-            BY_REPORT_CARD_NUM.thenComparing(BY_AVERAGE_SCORE).thenComparing(BY_GROUP_NUMBER_CASE_INSENSITIVE);
+    @Override
+    public int hashCode() {
+        return Objects.hash(groupNumber, averageScore, reportCardNumber);
+    }
 
     public String getGroupNumber() {
         return this.groupNumber;
