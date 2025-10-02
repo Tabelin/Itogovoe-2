@@ -1,9 +1,10 @@
 package generator;
 
 import data.Book;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class GenerateBook {
     private static final Random random = new Random();
@@ -27,17 +28,15 @@ public class GenerateBook {
     }
 
     public static List<Book> generateRandomBooks(int count) {
-        List<Book> books = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            Book book = new Book.Builder()
-                .setAuthors(generateRandomAuthor())
-                .setTitle(generateRandomTitle())
-                .setNumOfPages(generateRandomNumOfPages())
-                .build();
-            books.add(book);
-        }
-        return books;
+    return IntStream.range(0, count)
+        .mapToObj(_ -> new Book.Builder()
+            .setAuthor(generateRandomAuthor())
+            .setTitle(generateRandomTitle())
+            .setNumOfPages(generateRandomNumOfPages())
+            .build())
+        .collect(Collectors.toList());
     }
+
 
     // public static void main(String[] args) {
     //     List<Book> books = generateRandomBooks(20);

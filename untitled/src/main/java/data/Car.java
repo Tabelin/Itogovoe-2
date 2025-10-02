@@ -1,6 +1,7 @@
 package data;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 public class Car {
 
@@ -14,32 +15,32 @@ public class Car {
         this.yearOfManufacture = builder.yearOfManufacture;
     }
 
-    public static final Comparator<Car> BY_MODEL_CASE_INSENSITIVE =
+    private static final Comparator<Car> BY_MODEL_CASE_INSENSITIVE =
             Comparator.comparing(Car::getModel, String.CASE_INSENSITIVE_ORDER);
 
-    public static final Comparator<Car> BY_POWER =
+    private static final Comparator<Car> BY_POWER =
             Comparator.comparingInt(Car::getPower);
 
-    public static final Comparator<Car> BY_YEAR =
+    private static final Comparator<Car> BY_YEAR =
             Comparator.comparingInt(Car::getYearOfManufacture);
 
     public static final Comparator<Car> BY_MODEL_THEN_POWER_THEN_YEAR =
             BY_MODEL_CASE_INSENSITIVE.thenComparing(BY_POWER).thenComparing(BY_YEAR);
 
-    public static final Comparator<Car> BY_MODEL_THEN_YEAR_THEN_POWER =
-            BY_MODEL_CASE_INSENSITIVE.thenComparing(BY_YEAR).thenComparing(BY_POWER);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Car car = (Car) o;
+        return Objects.equals(model, car.getModel()) &&
+                (int) power == car.getPower() &&
+                (int) yearOfManufacture == car.getYearOfManufacture();
+    }
 
-    public static final Comparator<Car> BY_POWER_THEN_MODEL_THEN_YEAR =
-            BY_POWER.thenComparing(BY_MODEL_CASE_INSENSITIVE).thenComparing(BY_YEAR);
-
-    public static final Comparator<Car> BY_POWER_THEN_YEAR_THEN_MODEL =
-            BY_POWER.thenComparing(BY_YEAR).thenComparing(BY_MODEL_CASE_INSENSITIVE);
-
-    public static final Comparator<Car> BY_YEAR_THEN_MODEL_THEN_POWER =
-            BY_YEAR.thenComparing(BY_MODEL_CASE_INSENSITIVE).thenComparing(BY_POWER);
-
-    public static final Comparator<Car> BY_YEAR_THEN_POWER_THEN_MODEL =
-            BY_YEAR.thenComparing(BY_POWER).thenComparing(BY_MODEL_CASE_INSENSITIVE);
+    @Override
+    public int hashCode() {
+        return Objects.hash(model, power, yearOfManufacture);
+    }
 
     public String getModel() {
         return this.model;
