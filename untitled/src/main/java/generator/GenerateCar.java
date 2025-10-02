@@ -1,9 +1,10 @@
 package generator;
 
 import data.Car;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class GenerateCar {
     private static final Random random = new Random();
@@ -25,22 +26,20 @@ public class GenerateCar {
     }
 
     public static List<Car> generateRandomCars(int count) {
-        List<Car> cars = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            Car car = new Car.Builder()
-                .setModel(generateRandomModel())
-                .setPower(generateRandomPower())
-                .setYearOfManufacture(generateRandomYear())
-                .build();
-            cars.add(car);
-        }
-        return cars;
+    return IntStream.range(0, count)
+        .mapToObj(_ -> new Car.Builder()
+            .setModel(generateRandomModel())
+            .setPower(generateRandomPower())
+            .setYearOfManufacture(generateRandomYear())
+            .build())
+        .collect(Collectors.toList());
     }
 
-    public static void main(String[] args) {
-        List<Car> cars = generateRandomCars(20);
-        for (Car car : cars) {
-            System.out.println(car.getModel() + ", " + car.getPower() + " л.с., " + car.getYearOfManufacture());
-        }
-    }
+
+    // public static void main(String[] args) {
+    //     List<Car> cars = generateRandomCars(20);
+    //     for (Car car : cars) {
+    //         System.out.println(car.getModel() + ", " + car.getPower() + " л.с., " + car.getYearOfManufacture());
+    //     }
+    // }
 }
