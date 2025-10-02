@@ -6,18 +6,24 @@ import data.Book;
 
 import input.ManualInput;
 
-import generator.GenerateBook;
+import generator.GenerateBook;                  //рандом
 import generator.GenerateCar;
 import generator.GenerateStudent;
 
-import binSearch.BinSearch;
+import writing.WriteClass;                       //чтение/запись в/из файл(а)
+import java.util.function.Function;
+
+import binSearch.BinSearch;                     //поиск
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class User_Interface {
 
@@ -26,7 +32,7 @@ public class User_Interface {
     private static String currentType = "";
     
      public static void main(String[] args) {
-        System.out.println("=== Приложение для сортировки и поиска ===");
+        System.out.println("xxx   Приложение для сортировки и поиска   xxx");
 
         while (true) {
             showMainMenu();
@@ -67,6 +73,13 @@ public class User_Interface {
     private static void showMainMenu() {
         System.out.println("     Меню");
         System.out.println("1. Выбрать тип данных (Car / Student / Book)");
+
+         if (!currentType.isEmpty()) {
+             System.out.println("Текущий тип: " + currentType);
+         } else {
+             System.out.println("Тип данных: не выбран");
+         }
+
         System.out.println("2. Заполнить коллекцию");
         System.out.println("3. Сортировать");
         System.out.println("4. Найти элемент (бинарный поиск)");
@@ -119,7 +132,7 @@ public class User_Interface {
                 generateRandomData(count);
                 break;
             case 2:
-                System.out.println("чтение из файла не реализовано.");
+                fillFromFile();
                 break;
             case 3:
                 manualInputData(count);                                                         
@@ -134,27 +147,145 @@ public class User_Interface {
     }
 
      private static void generateRandomData(int count) {                                    // 2.1 рандом заполнение
-        switch (currentType) {                                                              //заполнение коллекции должно быть посредством стрима!!!
+        switch (currentType) {
             case "Car":
-                currentCollection = GenerateCar.generateRandomCars(count);
+                currentCollection = IntStream.range(0, count)
+                    .mapToObj(i -> {
+                        // Генерируем ОДИН Car за раз → чистое использование стрима
+                        return GenerateCar.generateRandomCars(1).get(0);
+                    })
+                    .collect(Collectors.toList());
+                 break;
+                 
+             case "Student":
+                currentCollection = IntStream.range(0, count)
+                    .mapToObj(i -> GenerateStudent.generateRandomStudents(1).get(0))
+                    .collect(Collectors.toList());
                 break;
-            case "Student":
-                currentCollection = GenerateStudent.generateRandomStudents(count);
+                 
+             case "Book":
+                currentCollection = IntStream.range(0, count)
+                    .mapToObj(i -> GenerateBook.generateRandomBooks(1).get(0))
+                    .collect(Collectors.toList());
                 break;
-            case "Book":
-                currentCollection = GenerateBook.generateRandomBooks(count);
-                break;
-            default:
+                 
+             default:
                 System.out.println("Неизвестный тип данных.");
                 return;
         }
         System.out.println("Сгенерировано " + count + " элементов типа " + currentType);
     }
 
+                                                                                      
+    private static void fillFromFile() {                                                      //2.2 чтение из файла
+        if (currentType.isEmpty()) {
+            System.out.println("Сначала выберите тип данных!");
+            return;
+        }
 
+        System.out.print("Введите имя файла: ");
+        System.out.print("Например:  java/test ");
+        String fileName = scanner.nextLine();
 
-                                                                                            //2.2 чтение из файла
+        try {
+            String[] lines = WriteClass.readLinesFromFile(fileName);
 
+            switch (currentType) {
+                case "Car":
+                    List<Car> cars = Arrays.stream(lines)
+                        .filter(line -> !line.trim().isEmpty())
+                        .map(line -> {
+                            String[] parts = line.split(",\\s*");
+                            if (parts.length != 3) return null;
+                            try {
+                                String model = parts[0].trim();
+                                int power = Integer.parseInt(parts[1].replace("л.с.", "").trim());
+                                int yearOfManufacture = Integer.parseInt(parts[2].trim());
+                                return new Car.Builder()
+                                    .setModel(model)
+                                    .setPower(power)
+                                    .setYearOfManufacture(yearOfManufacture)
+                                    .build();
+                            } catch (Exception e) {
+                                System.err.println("Ошибка парсинга строки: " + line);
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+
+                    currentCollection = cars;
+                    break;
+
+            case "Student":
+                List<Student> students = Arrays.stream(lines)
+                    .filter(line -> !line.trim().isEmpty())
+                    .map(line -> {
+                        String[] parts = line.split(",\\s*");
+                        if (parts.length != 3) return null;
+                        try {
+                            String groupNumber = parts[0].trim();
+                            float averageScore = Float.parseFloat(parts[1].trim());
+                            String reportCardNumber = parts[2].trim();
+                            return new Student.Builder()
+                                .setGroupNumber(groupNumber)
+                                .setAverageScore(averageScore)
+                                .setReportCardNumber(reportCardNumber)
+                                .build();
+                        } catch (Exception e) {
+                            System.err.println("Ошибка парсинга строки: " + line);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+                currentCollection = students;
+                break;
+
+            case "Book":
+                List<Book> books = Arrays.stream(lines)
+                    .filter(line -> !line.trim().isEmpty())
+                    .map(line -> {
+                        String[] parts = line.split(",\\s*");
+                        if (parts.length != 2) return null;
+                        try {
+                            String authorTitle = parts[0].trim();
+                            int numOfPages = Integer.parseInt(parts[1].replace("стр.", "").trim());
+
+                            String[] authTitleParts = authorTitle.split(" - ", 2);
+                            if (authTitleParts.length != 2) return null;
+
+                            String author = authTitleParts[0];
+                            String title = authTitleParts[1];
+
+                            return new Book.Builder()
+                                .setAuthors(author)
+                                .setTitle(title)
+                                .setNumOfPages(numOfPages)
+                                .build();
+                            } catch (Exception e) {
+                                System.err.println("Ошибка парсинга строки: " + line);
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+
+                    currentCollection = books;
+                    break;
+
+                default:
+                    System.out.println("Неизвестный тип данных.");
+                    return;
+            }
+
+            System.out.println("Коллекция загружена из файла: " + fileName + " (" + currentCollection.size() + " элементов)");
+
+        } catch (Exception e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+        }
+    }
 
 
 
@@ -162,6 +293,8 @@ public class User_Interface {
                                                                                             //2.3 ручной ввод
 
     private static void manualInputData(int count) {
+        Scanner inputScanner = new Scanner(System.in);
+
     switch (currentType) {
         case "Car":
             List<Car> cars = IntStream.range(0, count)
@@ -211,13 +344,53 @@ public class User_Interface {
         
         System.out.println("бинарный поиск выполнен (нет).");
     }
-
-    private static void saveToFile() {                                                      // 5 сохранить в файл
         
-        System.out.println("данные сохранены (нет).");
+    
+    private static void saveToFile() {                                                      // 5 сохранить в файл
+    if (currentCollection == null || currentCollection.isEmpty()) {                          
+        System.out.println("Сначала заполните коллекцию!");
+        return;
     }
 
-     private static int getIntInput(String prompt) {                                    // ввод пользователя во время выбора
+    //System.out.print("Введите имя файла для сохранения (например: sortedCars.txt): ");
+    //String fileName = scanner.nextLine();
+
+    try {
+        switch (currentType) {
+            case "Car":
+                @SuppressWarnings("unchecked")
+                List<Car> cars = (List<Car>) currentCollection;
+                WriteClass.writeCarData(cars);
+                System.out.println("Данные успешно сохранены в файл: Car.txt");
+                break;
+
+            case "Student":
+                @SuppressWarnings("unchecked")
+                List<Student> students = (List<Student>) currentCollection;
+                WriteClass.writeStudentData(students); 
+                System.out.println("Данные успешно сохранены в файл: Student.txt");
+                break;
+
+            case "Book":
+                @SuppressWarnings("unchecked")
+                List<Book> books = (List<Book>) currentCollection;
+                WriteClass.writeBookData(books);
+                System.out.println("Данные успешно сохранены в файл: Book.txt");
+                break;
+
+            default:
+                System.out.println("Неизвестный тип данных.");
+                return;
+        }
+
+        System.out.println("Данные успешно сохранены в файл: " + fileName);
+
+    } catch (Exception e) {
+        System.err.println("Ошибка при записи в файл: " + e.getMessage());
+    }
+}    
+
+    private static int getIntInput(String prompt) {                                    // ввод пользователя во время выбора
         System.out.print(prompt);
         while (!scanner.hasNextInt()) {
             System.out.print("Пожалуйста, введите число: ");

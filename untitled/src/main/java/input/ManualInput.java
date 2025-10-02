@@ -78,11 +78,11 @@ public class ManualInput {
     Float averageScore = null;
     while (averageScore == null) {
         try {
-            System.out.print("Средний балл (от 1 до 5): ");
+            System.out.print("Средний балл (от 2 до 5): ");
             String input = scanner.nextLine().trim().replace(',', '.');
             float value = Float.parseFloat(input);
-            if (value < 1.0f || value > 5.0f) {
-                System.out.println("Балл должен быть в диапазоне от 1 до 5.");
+            if (value < 2.0f || value > 5.0f) {
+                System.out.println("Балл должен быть в диапазоне от 2 до 5.");
                 continue;
             }
             averageScore = value;
