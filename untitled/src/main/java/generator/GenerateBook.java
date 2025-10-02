@@ -29,19 +29,11 @@ public class GenerateBook {
 
     public static List<Book> generateRandomBooks(int count) {
     return IntStream.range(0, count)
-        .mapToObj(_ -> new Book.Builder()
+        .mapToObj(i -> new Book.Builder()
             .setAuthor(generateRandomAuthor())
             .setTitle(generateRandomTitle())
             .setNumOfPages(generateRandomNumOfPages())
             .build())
         .collect(Collectors.toList());
     }
-
-
-    // public static void main(String[] args) {
-    //     List<Book> books = generateRandomBooks(20);
-    //     for (Book book : books) {
-    //         System.out.println(book.getAuthor() + " - " + book.getTitle() + ", " + book.getNumOfPages() + " стр.");
-    //     }
-    // }
 }

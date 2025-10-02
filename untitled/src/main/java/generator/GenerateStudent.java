@@ -23,19 +23,11 @@ public class GenerateStudent {
 
     public static List<Student> generateRandomStudents(int count) {
     return IntStream.range(0, count)
-        .mapToObj(_ -> new Student.Builder()
+        .mapToObj(i -> new Student.Builder()
             .setGroupNumber(generateRandomGroupNumber())
             .setAverageScore(generateRandomAverageScore())
             .setReportCardNumber(generateRandomReportCardNumber())
             .build())
         .collect(Collectors.toList());
     }
-
-    // public static void main(String[] args) {
-    //     List<Student> students = generateRandomStudents(20);
-    //     for (Student student : students) {
-    //         System.out.println("Гр"+student.getGroupNumber() + ", Средний балл: " + student.getAverageScore() + ", Номер зачетки" + student.getReportCardNumber());
-    //     }
-    // }
-
 }
