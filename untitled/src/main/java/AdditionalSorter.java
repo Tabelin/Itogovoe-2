@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -16,8 +17,9 @@ public class AdditionalSorter<T> {
     }
 
     public List<T> additionalSort(List<T> arrayForSort) {
+        ArrayList<T> originalArray = new ArrayList<>(arrayForSort);
         // Достаем из исходного массива объекты с четными значениями полей
-        List<T> arrayOfObjWithEvenFields = arrayForSort.stream()
+        List<T> arrayOfObjWithEvenFields = originalArray.stream()
                 .filter(obj -> extractor.applyAsInt(obj) % 2 == 0)
                 .toList();
 
@@ -58,10 +60,10 @@ public class AdditionalSorter<T> {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-            System.out.printf("Execution exception: %s\n", e.getMessage());
+            System.out.printf("Ошибка внутри одного из потоков. Причина: %s\n", e.getCause());
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
     private List<T> mergeSortedPartsOfArray(List<T> leftArray, List<T> rightArray) {
