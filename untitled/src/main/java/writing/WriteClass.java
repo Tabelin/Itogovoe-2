@@ -72,14 +72,14 @@ public class WriteClass {
                 + " " + student.getReportCardNumber());
     }
 
-    public static void main(String[] args) {
-        List<Book> books = GenerateBook.generateRandomBooks(5);
-        writeBookData(books);
-
-        List<Car> cars = GenerateCar.generateRandomCars(5);
-        writeCarData(cars);
-
-        List<Student> students = GenerateStudent.generateRandomStudents(5);
-        writeStudentData(students);
-    }
+//    public static void main(String[] args) {
+//        List<Book> books = GenerateBook.generateRandomBooks(5);
+//        writeBookData(books);
+//
+//        List<Car> cars = GenerateCar.generateRandomCars(5);
+//        writeCarData(cars);
+//
+//        List<Student> students = GenerateStudent.generateRandomStudents(5);
+//        writeStudentData(students);
+//    }
 }
