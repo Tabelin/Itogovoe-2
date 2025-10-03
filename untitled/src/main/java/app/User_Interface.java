@@ -571,8 +571,6 @@ public class User_Interface {
                 return;
         }
 
-        System.out.println("Данные успешно сохранены в файл: " + fileName);
-
     } catch (Exception e) {
         System.err.println("Ошибка при записи в файл: " + e.getMessage());
     }
@@ -587,7 +585,7 @@ public class User_Interface {
         return scanner.nextInt();
     }
    
-    private static void countElementOccurrences() {
+    private static void countElementOccurrences() {                                 // 
         if (currentCollection == null || currentCollection.isEmpty()) {
             System.out.println("Сначала заполните коллекцию!");
             return;
@@ -637,7 +635,6 @@ public class User_Interface {
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) currentCollection;
 
-            // ⚠️ ВЫЗЫВАЕМ МЕТОД — ОН САМ ВЫВОДИТ РЕЗУЛЬТАТ!
             NumEntriesInList.findNumEntries(
                 searchElement,
                 (List<Object>) list,
