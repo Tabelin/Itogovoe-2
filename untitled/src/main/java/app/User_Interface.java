@@ -1,40 +1,24 @@
 package app;
 
+import binSearch.BinSearch;
+import data.Book;
 import data.Car;
 import data.Student;
-import data.Book;
-
-import input.ResultSaver;
-import input.ManualInput;
-
-import generator.GenerateBook;                  //рандом
-import generator.GenerateCar;
+import generator.GenerateBook;
+import generator.GenerateCar;                 
 import generator.GenerateStudent;
-
-import number_entries_in_list.NumEntriesInList;
-
-import writing.WriteClass;                       //чтение/запись в/из файл(а)
-import java.util.function.Function;
-
-import sort.SimpleMergeSort;                    //сортировка
-
-import sort.AdditionalSorter;                    //4 доп сорт
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.function.ToIntFunction;
-import binSearch.BinSearch;                     //поиск
-
-import java.util.ArrayList;                             
-import java.util.Arrays;
+import input.ManualInput;
+import input.ResultSaver;
+import java.util.Arrays;                      
 import java.util.Comparator;
-import java.util.List;                              
-import java.util.Objects;                               
-import java.util.Scanner;                               
-                                
+import java.util.List;
+import java.util.Objects;                   
+import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import number_entries_in_list.NumEntriesInList;
+import sort.SimpleMergeSort;                    
+import writing.WriteClass;                             
 
 public class User_Interface {
 
@@ -153,19 +137,18 @@ public class User_Interface {
         System.out.println("1. Случайно");
         System.out.println("2. Из файла");
         System.out.println("3. Вручную");
-
         int choice = getIntInput("Ваш выбор заполнения: ");
-        int count = getIntInput("Введите количество элементов: ");
+        
 
         switch (choice) {
             case 1:
-                generateRandomData(count);
+                generateRandomData();
                 break;
             case 2:
                 fillFromFile();
                 break;
             case 3:
-                manualInputData(count);                                                         
+                manualInputData();                                                         
                 break;
             default:
                 System.out.println("Неверный выбор.");
@@ -176,7 +159,8 @@ public class User_Interface {
         }
     }
 
-     private static void generateRandomData(int count) {                                    // 2.1 рандом заполнение
+     private static void generateRandomData() {                                    // 2.1 рандом заполнение
+        int count = getIntInput("Введите количество элементов: ");
         switch (currentType) {
             case "Car":
                 currentCollection = IntStream.range(0, count)
@@ -213,9 +197,9 @@ public class User_Interface {
         }
 
         System.out.print("Введите имя файла: ");
-        System.out.print("Например:  java/test ");
-        String fileName = scanner.nextLine();
 
+   
+        String fileName = scanner.nextLine().trim();
         try {
             String[] lines = WriteClass.readLinesFromFile(fileName);
 
@@ -224,11 +208,11 @@ public class User_Interface {
                     List<Car> cars = Arrays.stream(lines)
                         .filter(line -> !line.trim().isEmpty())
                         .map(line -> {
-                            String[] parts = line.split(",\\s*");
+                            String[] parts = line.split("/");
                             if (parts.length != 3) return null;
                             try {
                                 String model = parts[0].trim();
-                                int power = Integer.parseInt(parts[1].replace("л.с.", "").trim());
+                                int power = Integer.parseInt(parts[1].trim());
                                 int yearOfManufacture = Integer.parseInt(parts[2].trim());
                                 return new Car.Builder()
                                     .setModel(model)
@@ -250,7 +234,7 @@ public class User_Interface {
                 List<Student> students = Arrays.stream(lines)
                     .filter(line -> !line.trim().isEmpty())
                     .map(line -> {
-                        String[] parts = line.split(",\\s*");
+                        String[] parts = line.split("/");
                         if (parts.length != 3) return null;
                         try {
                             String groupNumber = parts[0].trim();
@@ -276,7 +260,7 @@ public class User_Interface {
                 List<Book> books = Arrays.stream(lines)
                     .filter(line -> !line.trim().isEmpty())
                     .map(line -> {
-                        String[] parts = line.split(",\\s*");
+                        String[] parts = line.split("/");
                         if (parts.length != 2) return null;
                         try {
                             String authorTitle = parts[0].trim();
@@ -317,7 +301,10 @@ public class User_Interface {
     }
 
                                                                               
-    private static void manualInputData(int count) {                                        //2.3 ручной ввод
+    private static void manualInputData() {                                        //2.3 ручной ввод
+
+        int count = getIntInput("Введите количество элементов: ");
+
         Scanner inputScanner = new Scanner(System.in);
 
     switch (currentType) {
@@ -341,7 +328,6 @@ public class User_Interface {
         currentCollection = students;
          break;
 
-
         case "Book":
             List<Book> books = IntStream.range(0, count)
             .mapToObj(i -> {
@@ -358,7 +344,6 @@ public class User_Interface {
     System.out.println("Ручной ввод завершён. Заполнено: " + count + " элементов.");
 }
 
-
     private static void sortCollection() {                                                  // 3 сортировка 
         
         if (currentCollection == null || currentCollection.isEmpty()) {
@@ -367,26 +352,23 @@ public class User_Interface {
         }
 
         System.out.println("Выберите режим сортировки:");
-        System.out.println("1. По одному полю");
-        System.out.println("2. По нескольким полям (приоритет)");
-        System.out.println("3. По целочисленным полям с четными значениями");
+        System.out.println("1. По нескольким полям");
+        System.out.println("2. По целочисленным полям с четными значениями");
 
         int mode = getIntInput("Ваш выбор: ");
 
         Comparator<?> comparator;
 
         switch (mode) {
+            
             case 1:
-                comparator = getSingleFieldComparator();
-                break;
-            case 2:
                 comparator = getMultiFieldComparator();
                 break;
-            case 3:
+            case 2:
                 startAdditionalSorting(currentCollection, extractor);
             default:
-                System.out.println("Неверный ввод.");         //еше дополнительно к основным сортировкам реализовать эти же алгоритмы сортировки таким образом, что объекты классов будут сортироваться по какому-либо числовому полю: объекты с четными значениями этого поля должны быть отсортированы в натуральном порядке, а с нечетными – оставаться на исходных
-                return;                                             //доп сортировка?
+                System.out.println("Неверный ввод.");        
+                return;                                             
         }  
         
         if (comparator == null) return;
@@ -409,61 +391,10 @@ public class User_Interface {
         } catch (Exception e) {
             System.err.println("Ошибка при сортировке: " + e.getMessage());
         }
-
     }
-
-
-    private static Comparator<?> getSingleFieldComparator() {
-    System.out.println("Выберите поле для сортировки:");
-    System.out.println("1. По модели / группе / автору");
-    System.out.println("2. По мощности / среднему баллу / количеству страниц");
-    System.out.println("3. По году выпуска / номеру зачетки / названию");
-
-    int choice = getIntInput("Ваш выбор: ");
-
-    switch (currentType) {
-        case "Car":
-            return switch (choice) {
-                case 1 -> (Comparator<Car>) (c1, c2) -> c1.getModel().compareTo(c2.getModel());
-                case 2 -> (Comparator<Car>) (c1, c2) -> Integer.compare(c1.getPower(), c2.getPower());
-                case 3 -> (Comparator<Car>) (c1, c2) -> Integer.compare(c1.getYearOfManufacture(), c2.getYearOfManufacture());
-                default -> {
-                    System.out.println("Неверный выбор.");
-                    yield null;
-                }
-            };
-
-        case "Student":
-            return switch (choice) {
-                case 1 -> (Comparator<Student>) (s1, s2) -> s1.getGroupNumber().compareTo(s2.getGroupNumber());
-                case 2 -> (Comparator<Student>) (s1, s2) -> Float.compare(s1.getAverageScore(), s2.getAverageScore());
-                case 3 -> (Comparator<Student>) (s1, s2) -> s1.getReportCardNumber().compareTo(s2.getReportCardNumber());
-                default -> {
-                    System.out.println("Неверный выбор.");
-                    yield null;
-                }
-            };
-
-        case "Book":
-            return switch (choice) {
-                case 1 -> (Comparator<Book>) (b1, b2) -> b1.getAuthor().compareTo(b2.getAuthor());
-                case 2 -> (Comparator<Book>) (b1, b2) -> Integer.compare(b1.getNumOfPages(), b2.getNumOfPages());
-                case 3 -> (Comparator<Book>) (b1, b2) -> b1.getTitle().compareTo(b2.getTitle());
-                default -> {
-                    System.out.println("Неверный выбор.");
-                    yield null;
-                }
-            };
-
-        default:
-            System.out.println("Неизвестный тип данных.");
-            return null;
-        }
-    }
-
 
     private static Comparator<?> getMultiFieldComparator() {
-    System.out.println("Сортировка по нескольким полям (в порядке приоритета).");
+    //System.out.println("Сортировка по нескольким полям (в порядке приоритета).");
 
     switch (currentType) {
         case "Car":
@@ -488,63 +419,27 @@ public class User_Interface {
     }
 
     private static void searchElement() {                                                   // 4 бинарный поиск
+
        if (currentCollection == null || currentCollection.isEmpty()) {
         System.out.println("Сначала заполните коллекцию!");
         return;
     }
-
-    scanner.nextLine(); // очистка
-        System.out.print("Введите текст для поиска: ");
-        String query = scanner.nextLine().toLowerCase();
-
-
-        
-         List<String> foundLines = IntStream.range(0, currentCollection.size())
-            .mapToObj(i -> {
-                Object obj = currentCollection.get(i);
-                if (obj instanceof Car car) {
-                    if (car.getModel().toLowerCase().contains(query) ||
-                        String.valueOf(car.getPower()).contains(query) ||
-                        String.valueOf(car.getYearOfManufacture()).contains(query)) {
-                        return i + ": " + car.toString();
-                    }
-                } else if (obj instanceof Student student) {
-                    if (student.getGroupNumber().toLowerCase().contains(query) ||
-                        String.valueOf(student.getAverageScore()).toLowerCase().contains(query) || 
-                        student.getGroupNumber().toString().toLowerCase().contains(query)) {
-                        return i + ": " + student.toString();
-                    }
-                } else if (obj instanceof Book book) {
-                    if (book.getTitle().toLowerCase().contains(query) ||
-                        book.getAuthor().toLowerCase().contains(query) ||
-                        String.valueOf(book.getNumOfPages()).contains(query)) {
-                        return i + ": " + book.toString();
-                    }
-                }
-                return null;
-            })
-            .filter(Objects::nonNull)
-            .toList();
-
-        if (!foundLines.isEmpty()) {
-            System.out.println("Найдено " + foundLines.size() + " элементов:");
-            
-            foundLines.stream()
-                .limit(10)
-                .forEach(System.out::println);
-
-            
-            ResultSaver.saveSearchResults(foundLines, "Поиск по всем полям: \"" + query + "\"");
-
-        } else {
-            System.out.println("Ничего не найдено.");
-
-            // Сохраняем факт отсутствия результата
-            ResultSaver.saveSearchResults(List.of(), "Поиск по всем полям: \"" + query + "\" → ничего не найдено");
+        switch (currentType) {
+            case "Car":
+                searchCar();
+                break;
+            case "Student":
+                searchStudent();
+                break;
+            case "Book":
+                searchBook();
+                break;
+            default:
+                System.out.println("Неизвестный тип данных.");
         }
+
     }
         
-    
     private static void saveToFile() {                                                      // 5 сохранить в файл
     if (currentCollection == null || currentCollection.isEmpty()) {                          
         System.out.println("Сначала заполните коллекцию!");
@@ -591,75 +486,74 @@ public class User_Interface {
             System.out.print("Пожалуйста, введите число: ");
             scanner.next(); // очистка
         }
-        return scanner.nextInt();
+      
+         int intResult = scanner.nextInt();
+         scanner.nextLine();
+         return intResult;
+
     }
    
-    private static void countElementOccurrences() {                                 // 
+    private static void countElementOccurrences() {                                 // подсчет н
         if (currentCollection == null || currentCollection.isEmpty()) {
             System.out.println("Сначала заполните коллекцию!");
             return;
         }
 
-        scanner.nextLine(); // очистка буфера
-        System.out.print("Введите значение для подсчёта вхождений: ");
-        String input = scanner.nextLine();
+             scanner.nextLine();
+        System.out.print("Введите модель: ");
+        String model = scanner.nextLine().trim();
 
-        Comparator<?> comparator = null;
-        Object searchElement = null;
+         int power;
 
-        switch (currentType) {
-            case "Car":
-                searchElement = new Car.Builder()
-                    .setModel(input)
-                    .setPower(0)
-                    .setYearOfManufacture(0)
-                    .build();
-                comparator = (Comparator<Car>) (c1, c2) -> c1.getModel().compareTo(c2.getModel());
-                break;
-
-            case "Student":
-                searchElement = new Student.Builder()
-                    .setReportCardNumber(input)
-                    .setGroupNumber("")
-                    .setAverageScore(0f)
-                    .build();
-                comparator = (Comparator<Student>) (s1, s2) -> s1.getReportCardNumber().compareTo(s2.getReportCardNumber());
-                break;
-
-            case "Book":
-                searchElement = new Book.Builder()
-                    .setTitle(input)
-                    .setAuthors("")
-                    .setNumOfPages(0)
-                    .build();
-                comparator = (Comparator<Book>) (b1, b2) -> b1.getTitle().compareTo(b2.getTitle());
-                break;
-
-            default:
-                System.out.println("Неизвестный тип данных.");
-                return;
-        }
-
+    while (true) {
         try {
-            @SuppressWarnings("unchecked")
-            List<Object> list = (List<Object>) currentCollection;
-
-            NumEntriesInList.findNumEntries(
-                searchElement,
-                (List<Object>) list,
-                (Comparator<Object>) comparator
-            );
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.err.println("Операция прервана.");
-        } catch (Exception e) {
-            System.err.println("Ошибка при подсчёте: " + e.getMessage());
+            System.out.print("Введите мощность (л.с.): ");
+            power = Integer.parseInt(scanner.nextLine().trim());
+            break;
+        } catch (NumberFormatException e) {
+            System.out.println("Введите число.");
         }
     }
 
+    int year;
+        while (true) {
+            try {
+                System.out.print("Введите год выпуска: ");
+                year = Integer.parseInt(scanner.nextLine().trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Введите число.");
+            }
+        }
 
-    private static void printCollection(List<?> collection, int limit) {                             //вывод доллекции
+        Car searchCar = new Car.Builder()
+            .setModel(model)
+            .setPower(power)
+            .setYearOfManufacture(year)
+            .build();
+
+        @SuppressWarnings("unchecked")
+        Comparator<Car> comparator = (Comparator<Car>) getMultiFieldComparator();
+        if (comparator == null) return;
+
+        @SuppressWarnings("unchecked")
+        List<Car> cars = (List<Car>) currentCollection;
+            System.out.println(model+power+year+"dd");
+
+
+            int countEntries=0;
+            try{
+                
+                countEntries = NumEntriesInList.findNumEntries(searchCar,cars,comparator);
+                } catch (InterruptedException e) {
+                System.out.println("Введите число.");
+            
+            }
+            System.out.println("количество вхождений " +countEntries);
+
+    
+        }
+    private static void printCollection(List<?> collection, int limit) {                             //вывод коллекции
     if (collection == null || collection.isEmpty()) {
         System.out.println("Коллекция пуста.");
         return;
@@ -685,6 +579,65 @@ public class User_Interface {
         }
     }
 
+    private static void searchCar() {
+        scanner.nextLine();
+        System.out.print("Введите модель: ");
+        String model = scanner.nextLine().trim();
+
+         int power;
+
+    while (true) {
+        try {
+            System.out.print("Введите мощность (л.с.): ");
+            power = Integer.parseInt(scanner.nextLine().trim());
+            break;
+        } catch (NumberFormatException e) {
+            System.out.println("Введите число.");
+        }
+    }
+
+    int year;
+        while (true) {
+            try {
+                System.out.print("Введите год выпуска: ");
+                year = Integer.parseInt(scanner.nextLine().trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Введите число.");
+            }
+        }
+
+        Car searchCar = new Car.Builder()
+            .setModel(model)
+            .setPower(power)
+            .setYearOfManufacture(year)
+            .build();
+
+        @SuppressWarnings("unchecked")
+        Comparator<Car> comparator = (Comparator<Car>) getMultiFieldComparator();
+        if (comparator == null) return;
+
+        @SuppressWarnings("unchecked")
+        List<Car> cars = (List<Car>) currentCollection;
+            System.out.println(model+power+year);
+
+
+
+        int index = BinSearch.binSearch(cars, searchCar, comparator);
+
+        if (index != -1) {
+            System.out.println("Элемент найден на позиции: " + index);
+            System.out.println("Найденный автомобиль: " + cars.get(index));
+        } else {
+            System.out.println("Элемент не найден.");
+        }
+    }
+
+    private static void searchStudent(){
+
+    }
+    private static void searchBook(){
+        
     private static <T> void startAdditionalSorting(List<?> list, ToIntFunction<?> extractor) {
         System.out.println("Начинаем сортировку...");
         AdditionalSorter<T> sorter = new AdditionalSorter.Builder<T>().setExecutor(executor).setExtractor((ToIntFunction<T>) extractor).build();
