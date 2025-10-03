@@ -27,19 +27,11 @@ public class GenerateCar {
 
     public static List<Car> generateRandomCars(int count) {
     return IntStream.range(0, count)
-        .mapToObj(_ -> new Car.Builder()
+        .mapToObj(i -> new Car.Builder()
             .setModel(generateRandomModel())
             .setPower(generateRandomPower())
             .setYearOfManufacture(generateRandomYear())
             .build())
         .collect(Collectors.toList());
     }
-
-
-    // public static void main(String[] args) {
-    //     List<Car> cars = generateRandomCars(20);
-    //     for (Car car : cars) {
-    //         System.out.println(car.getModel() + ", " + car.getPower() + " л.с., " + car.getYearOfManufacture());
-    //     }
-    // }
 }
