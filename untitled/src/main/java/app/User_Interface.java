@@ -6,7 +6,6 @@ import data.Book;
 
 import input.ResultSaver;
 import input.ManualInput;
-import main.java.input.ResultSaver;
 
 import generator.GenerateBook;                  //рандом
 import generator.GenerateCar;
@@ -250,7 +249,7 @@ public class User_Interface {
                         try {
                             String groupNumber = parts[0].trim();
                             float averageScore = Float.parseFloat(parts[1].trim());
-                            String reportCardNumber = parts[2].trim();
+                            Integer reportCardNumber = Integer.parseInt(parts[2].trim());
                             return new Student.Builder()
                                 .setGroupNumber(groupNumber)
                                 .setAverageScore(averageScore)
@@ -284,7 +283,7 @@ public class User_Interface {
                             String title = authTitleParts[1];
 
                             return new Book.Builder()
-                                .setAuthors(author)
+                                .setAuthor(author)
                                 .setTitle(title)
                                 .setNumOfPages(numOfPages)
                                 .build();
@@ -501,10 +500,9 @@ public class User_Interface {
                         return i + ": " + car.toString();
                     }
                 } else if (obj instanceof Student student) {
-                    if (student.getSurname().toLowerCase().contains(query) ||
-                        student.getGroupNumber().toLowerCase().contains(query) ||
-                        String.valueOf(student.getAverageScore()).contains(query) ||
-                        student.getReportCardNumber().toLowerCase().contains(query)) {
+                    if (student.getGroupNumber().toLowerCase().contains(query) ||
+                        String.valueOf(student.getAverageScore()).toLowerCase().contains(query) || 
+                        student.getGroupNumber().toString().toLowerCase().contains(query)) {
                         return i + ": " + student.toString();
                     }
                 } else if (obj instanceof Book book) {
@@ -648,9 +646,9 @@ public class User_Interface {
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.err.println("❌ Операция прервана.");
+            System.err.println("Операция прервана.");
         } catch (Exception e) {
-            System.err.println("❌ Ошибка при подсчёте: " + e.getMessage());
+            System.err.println("Ошибка при подсчёте: " + e.getMessage());
         }
     }
 
