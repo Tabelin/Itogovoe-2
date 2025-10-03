@@ -1,4 +1,4 @@
-package untitled.src.main.java.binSearch;
+package binSearch;
 
 import java.util.Comparator;
 import java.util.List;
