@@ -23,8 +23,11 @@ import writing.WriteClass;
 public class User_Interface {
 
     private static Scanner scanner = new Scanner(System.in);
-    private static List<?> currentCollection = null; 
+    private static List<?> currentCollection = null;
+    private static ToIntFunction<?> extractor;
     private static String currentType = "";
+
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
     
      public static void main(String[] args) {
         System.out.println("xxx   Приложение для сортировки и поиска   xxx");
@@ -105,14 +108,17 @@ public class User_Interface {
         switch (choice) {
             case 1:
                 currentType = "Car";
+                extractor = (ToIntFunction<Car>) Car::getPower;
                 System.out.println("Тип данных: Car");
                 break;
             case 2:
                 currentType = "Student";
+                extractor = (ToIntFunction<Student>) Student::getReportCardNumber;
                 System.out.println("Тип данных: Student");
                 break;
             case 3:
                 currentType = "Book";
+                extractor = (ToIntFunction<Book>) Book::getNumOfPages;
                 System.out.println("Тип данных: Book");
                 break;
             default:
@@ -347,6 +353,7 @@ public class User_Interface {
 
         System.out.println("Выберите режим сортировки:");
         System.out.println("1. По нескольким полям");
+        System.out.println("2. По целочисленным полям с четными значениями");
 
         int mode = getIntInput("Ваш выбор: ");
 
@@ -357,6 +364,8 @@ public class User_Interface {
             case 1:
                 comparator = getMultiFieldComparator();
                 break;
+            case 2:
+                startAdditionalSorting(currentCollection, extractor);
             default:
                 System.out.println("Неверный ввод.");        
                 return;                                             
@@ -369,7 +378,7 @@ public class User_Interface {
            
         try {
             System.out.println("Начинаем сортировку...");
-            SimpleMergeSort.mergeSort(list, (Comparator<Object>) comparator);
+            MergeSort.mergeSort(list, (Comparator<Object>) comparator);
             System.out.println(" Коллекция успешно отсортирована!");
            
             // Показать первые 5 элементов
@@ -557,12 +566,15 @@ public class User_Interface {
         System.out.printf("%d. ", i + 1);
 
             if (obj instanceof Car car) {
-                System.out.println(car.getModel() + " Мощность: " + car.getPower() + " л.с. Год: " + car.getYearOfManufacture());
+                System.out.println("Модель: " + car.getModel() + " Мощность: " + car.getPower() + " л.с. Год: " + car.getYearOfManufacture());
             } else if (obj instanceof Student student) {
                 System.out.println("Группа: " + student.getGroupNumber() +
-                        " Балл: " + String.format("%.2f", student.getAverageScore()));
+                        " Балл: " + String.format("%.2f", student.getAverageScore()) +
+                        " Номер зачетки: " + student.getReportCardNumber());
             } else if (obj instanceof Book book) {
-                System.out.println(book.getTitle() + "Автор: " + book.getAuthor() + " Страниц: " + book.getNumOfPages());
+                System.out.println("Название: " + book.getTitle() +
+                        " Автор: " + book.getAuthor() +
+                        " Страниц: " + book.getNumOfPages());
             }
         }
     }
@@ -626,6 +638,14 @@ public class User_Interface {
     }
     private static void searchBook(){
         
+    private static <T> void startAdditionalSorting(List<?> list, ToIntFunction<?> extractor) {
+        System.out.println("Начинаем сортировку...");
+        AdditionalSorter<T> sorter = new AdditionalSorter.Builder<T>().setExecutor(executor).setExtractor((ToIntFunction<T>) extractor).build();
+        List<T> sortedArray = sorter.additionalSort((List<T>) list);
+        System.out.println(" Коллекция успешно отсортирована!");
+
+        // Показать первые 5 элементов
+        printCollection(sortedArray, 5);
     }
 
 }
