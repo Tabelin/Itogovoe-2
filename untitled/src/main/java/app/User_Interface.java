@@ -14,17 +14,25 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;                   
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import number_entries_in_list.NumEntriesInList;
-import sort.SimpleMergeSort;                    
-import writing.WriteClass;                             
+import sort.AdditionalSorter;
+import sort.MergeSort;                    
+import writing.WriteClass;  
+
 
 public class User_Interface {
 
     private static Scanner scanner = new Scanner(System.in);
-    private static List<?> currentCollection = null; 
+    private static List<?> currentCollection = null;
+    private static ToIntFunction<?> extractor;
     private static String currentType = "";
+
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
     
      public static void main(String[] args) {
         System.out.println("xxx   Приложение для сортировки и поиска   xxx");
@@ -105,14 +113,17 @@ public class User_Interface {
         switch (choice) {
             case 1:
                 currentType = "Car";
+                extractor = (ToIntFunction<Car>) Car::getPower;
                 System.out.println("Тип данных: Car");
                 break;
             case 2:
                 currentType = "Student";
+                extractor = (ToIntFunction<Student>) Student::getReportCardNumber;
                 System.out.println("Тип данных: Student");
                 break;
             case 3:
                 currentType = "Book";
+                extractor = (ToIntFunction<Book>) Book::getNumOfPages;
                 System.out.println("Тип данных: Book");
                 break;
             default:
@@ -347,6 +358,7 @@ public class User_Interface {
 
         System.out.println("Выберите режим сортировки:");
         System.out.println("1. По нескольким полям");
+        System.out.println("2. По целочисленным полям с четными значениями");
 
         int mode = getIntInput("Ваш выбор: ");
 
@@ -357,6 +369,8 @@ public class User_Interface {
             case 1:
                 comparator = getMultiFieldComparator();
                 break;
+            case 2:
+                startAdditionalSorting(currentCollection, extractor);
             default:
                 System.out.println("Неверный ввод.");        
                 return;                                             
@@ -369,7 +383,7 @@ public class User_Interface {
            
         try {
             System.out.println("Начинаем сортировку...");
-            SimpleMergeSort.mergeSort(list, (Comparator<Object>) comparator);
+            MergeSort.mergeSort(list, (Comparator<Object>) comparator);
             System.out.println(" Коллекция успешно отсортирована!");
            
             // Показать первые 5 элементов
@@ -557,12 +571,15 @@ public class User_Interface {
         System.out.printf("%d. ", i + 1);
 
             if (obj instanceof Car car) {
-                System.out.println(car.getModel() + " Мощность: " + car.getPower() + " л.с. Год: " + car.getYearOfManufacture());
+                System.out.println("Модель: " + car.getModel() + " Мощность: " + car.getPower() + " л.с. Год: " + car.getYearOfManufacture());
             } else if (obj instanceof Student student) {
                 System.out.println("Группа: " + student.getGroupNumber() +
-                        " Балл: " + String.format("%.2f", student.getAverageScore()));
+                        " Балл: " + String.format("%.2f", student.getAverageScore()) +
+                        " Номер зачетки: " + student.getReportCardNumber());
             } else if (obj instanceof Book book) {
-                System.out.println(book.getTitle() + "Автор: " + book.getAuthor() + " Страниц: " + book.getNumOfPages());
+                System.out.println("Название: " + book.getTitle() +
+                        " Автор: " + book.getAuthor() +
+                        " Страниц: " + book.getNumOfPages());
             }
         }
     }
@@ -621,11 +638,122 @@ public class User_Interface {
         }
     }
 
-    private static void searchStudent(){
+    private static void searchStudent() {
 
+        System.out.print("Введите номер зачётки: ");
+        int reportCardNumber;
+        while (true) {
+            try {
+                System.out.print("Введите номер зачётки (число): ");
+                reportCardNumber = Integer.parseInt(scanner.nextLine().trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите целое число.");
+            }
+        }
+
+        int groupNumber;
+        while (true) {
+            try {
+                System.out.print("Введите номер группы: ");
+                groupNumber = Integer.parseInt(scanner.nextLine().trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число.");
+            }
+        }
+
+        float averageScore;
+        while (true) {
+            try {
+                System.out.print("Введите средний балл (от 0 до 5): ");
+                averageScore = Float.parseFloat(scanner.nextLine().trim());
+                if (averageScore < 0 || averageScore > 5) {
+                    System.out.println("Балл должен быть от 0 до 5.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число.");
+            }
+        }
+
+        Student searchStudent = new Student.Builder()
+            .setGroupNumber(String.valueOf(groupNumber))
+            .setAverageScore(averageScore)
+            .setReportCardNumber(reportCardNumber)
+            .build();
+
+        Comparator<Student> comparator = (Comparator<Student>) getMultiFieldComparator();
+
+        @SuppressWarnings("unchecked")
+        List<Student> students = (List<Student>) currentCollection;
+
+         System.out.println(reportCardNumber+groupNumber+averageScore);              //Введите номер зачётки: Введите номер зачётки (число): 71404
+                                                                                     //Введите номер группы: 128
+        int index = BinSearch.binSearch(students, searchStudent, comparator);        //Введите средний балл (от 0 до 5): 3.12
+                                                                                     //не найден выводит 71535.12 ?
+        if (index != -1) {
+            System.out.println("Элемент найден на позиции: " + index);
+            System.out.println("Найденный студент: " + students.get(index));
+        } else {
+            System.out.println("Элемент не найден.");
+        }
     }
-    private static void searchBook(){
-        
+
+    private static void searchBook() {
+        scanner.nextLine();
+
+        System.out.print("Введите автора: ");
+        String author = scanner.nextLine().trim();
+
+        System.out.print("Введите название книги: ");
+        String title = scanner.nextLine().trim();
+
+        int numOfPages;
+        while (true) {
+            try {
+                System.out.print("Введите количество страниц: ");
+                numOfPages = Integer.parseInt(scanner.nextLine().trim());
+                if (numOfPages <= 0) {
+                    System.out.println("Количество страниц должно быть положительным.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число.");
+            }
+        }
+
+        Book searchBook = new Book.Builder()
+            .setAuthor(author)
+            .setTitle(title)
+            .setNumOfPages(numOfPages)
+            .build();
+
+        Comparator<Book> comparator = (Comparator<Book>) getMultiFieldComparator();
+
+        @SuppressWarnings("unchecked")
+        List<Book> books = (List<Book>) currentCollection;
+
+        int index = BinSearch.binSearch(books, searchBook, comparator);
+
+        if (index != -1) {
+            System.out.println("Элемент найден на позиции: " + index);
+            System.out.println("Найденная книга: " + books.get(index));
+        } else {
+            System.out.println("Элемент не найден.");
+        }
+    }
+
+    private static <T> void startAdditionalSorting(List<?> list, ToIntFunction<?> extractor) {
+        System.out.println("Начинаем сортировку...");
+        AdditionalSorter<T> sorter = new AdditionalSorter.Builder<T>().setExecutor(executor).setExtractor((ToIntFunction<T>) extractor).build();
+        List<T> sortedArray = sorter.additionalSort((List<T>) list);
+        System.out.println(" Коллекция успешно отсортирована!");
+
+        // Показать первые 5 элементов
+        printCollection(sortedArray, 5);
     }
 
 }
