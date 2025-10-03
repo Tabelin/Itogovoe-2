@@ -1,8 +1,11 @@
 package sort;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.*;
 
-public class SimpleMergeSort {
+public class MergeSort {
     private static final int MIN_PARALLEL_SIZE = 10; // Минимальный размер для параллельной сортировки слиянием
     private static ExecutorService executor;
 
