@@ -14,11 +14,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;                   
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import number_entries_in_list.NumEntriesInList;
-import sort.SimpleMergeSort;                    
-import writing.WriteClass;                             
+import sort.AdditionalSorter;
+import sort.MergeSort;                    
+import writing.WriteClass;  
+
 
 public class User_Interface {
 
@@ -633,11 +638,114 @@ public class User_Interface {
         }
     }
 
-    private static void searchStudent(){
+    private static void searchStudent() {
 
+        System.out.print("Введите номер зачётки: ");
+        int reportCardNumber;
+        while (true) {
+            try {
+                System.out.print("Введите номер зачётки (число): ");
+                reportCardNumber = Integer.parseInt(scanner.nextLine().trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите целое число.");
+            }
+        }
+
+        int groupNumber;
+        while (true) {
+            try {
+                System.out.print("Введите номер группы: ");
+                groupNumber = Integer.parseInt(scanner.nextLine().trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число.");
+            }
+        }
+
+        float averageScore;
+        while (true) {
+            try {
+                System.out.print("Введите средний балл (от 0 до 5): ");
+                averageScore = Float.parseFloat(scanner.nextLine().trim());
+                if (averageScore < 0 || averageScore > 5) {
+                    System.out.println("Балл должен быть от 0 до 5.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число.");
+            }
+        }
+
+        Student searchStudent = new Student.Builder()
+            .setGroupNumber(String.valueOf(groupNumber))
+            .setAverageScore(averageScore)
+            .setReportCardNumber(reportCardNumber)
+            .build();
+
+        Comparator<Student> comparator = (Comparator<Student>) getMultiFieldComparator();
+
+        @SuppressWarnings("unchecked")
+        List<Student> students = (List<Student>) currentCollection;
+
+         System.out.println(reportCardNumber+groupNumber+averageScore);              //Введите номер зачётки: Введите номер зачётки (число): 71404
+                                                                                     //Введите номер группы: 128
+        int index = BinSearch.binSearch(students, searchStudent, comparator);        //Введите средний балл (от 0 до 5): 3.12
+                                                                                     //не найден выводит 71535.12 ?
+        if (index != -1) {
+            System.out.println("Элемент найден на позиции: " + index);
+            System.out.println("Найденный студент: " + students.get(index));
+        } else {
+            System.out.println("Элемент не найден.");
+        }
     }
-    private static void searchBook(){
-        
+
+    private static void searchBook() {
+        scanner.nextLine();
+
+        System.out.print("Введите автора: ");
+        String author = scanner.nextLine().trim();
+
+        System.out.print("Введите название книги: ");
+        String title = scanner.nextLine().trim();
+
+        int numOfPages;
+        while (true) {
+            try {
+                System.out.print("Введите количество страниц: ");
+                numOfPages = Integer.parseInt(scanner.nextLine().trim());
+                if (numOfPages <= 0) {
+                    System.out.println("Количество страниц должно быть положительным.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число.");
+            }
+        }
+
+        Book searchBook = new Book.Builder()
+            .setAuthor(author)
+            .setTitle(title)
+            .setNumOfPages(numOfPages)
+            .build();
+
+        Comparator<Book> comparator = (Comparator<Book>) getMultiFieldComparator();
+
+        @SuppressWarnings("unchecked")
+        List<Book> books = (List<Book>) currentCollection;
+
+        int index = BinSearch.binSearch(books, searchBook, comparator);
+
+        if (index != -1) {
+            System.out.println("Элемент найден на позиции: " + index);
+            System.out.println("Найденная книга: " + books.get(index));
+        } else {
+            System.out.println("Элемент не найден.");
+        }
+    }
+
     private static <T> void startAdditionalSorting(List<?> list, ToIntFunction<?> extractor) {
         System.out.println("Начинаем сортировку...");
         AdditionalSorter<T> sorter = new AdditionalSorter.Builder<T>().setExecutor(executor).setExtractor((ToIntFunction<T>) extractor).build();
