@@ -4,17 +4,26 @@ import data.Car;
 import data.Student;
 import data.Book;
 
+import input.ResultSaver;
 import input.ManualInput;
+import main.java.input.ResultSaver;
 
 import generator.GenerateBook;                  //рандом
 import generator.GenerateCar;
 import generator.GenerateStudent;
+
+import number_entries_in_list.NumEntriesInList;
 
 import writing.WriteClass;                       //чтение/запись в/из файл(а)
 import java.util.function.Function;
 
 import sort.SimpleMergeSort;                    //сортировка
 
+import sort.AdditionalSorter;                    //4 доп сорт
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.function.ToIntFunction;
 import binSearch.BinSearch;                     //поиск
 
 import java.util.ArrayList;                             
@@ -64,8 +73,20 @@ public class User_Interface {
                     break;
                 case 5:
                     saveToFile();
+
                     break;
-                case 6:
+
+                case 6:  // добавить ввод пользователем  элемента 
+                    if (currentCollection == null || currentCollection.isEmpty()) {
+                        System.out.println("Сначала заполните коллекцию!");
+                        break;
+                    }
+                    countElementOccurrences(); // нужно добавить сюда, что мы можем передавать;
+    
+                    break;
+
+
+                case 7:
                     System.out.println("Выход");
                     return;
                 default:
@@ -87,7 +108,8 @@ public class User_Interface {
         System.out.println("3. Сортировать");
         System.out.println("4. Найти элемент (бинарный поиск)");
         System.out.println("5. Сохранить в файл");
-        System.out.println("6. Выход");
+        System.out.println("6. Вывод количеств вхождений элемента в список");
+        System.out.println("7. Выход");
     }
 
      private static void selectDataType() {                                             // 1 выбор типа данных
@@ -127,7 +149,7 @@ public class User_Interface {
         System.out.println("2. Из файла");
         System.out.println("3. Вручную");
 
-        int choice = getIntInput("Ваш выбор: ");
+        int choice = getIntInput("Ваш выбор заполнения: ");
         int count = getIntInput("Введите количество элементов: ");
 
         switch (choice) {
@@ -373,6 +395,7 @@ public class User_Interface {
             System.out.println("Первые 5 элементов после сортировки:");
             for (int i = 0; i < Math.min(5, currentCollection.size()); i++) {
                 printCollection(currentCollection, 10);
+                ResultSaver.saveWithIndex(currentCollection, "Отсортированная коллекция (" + currentType + ") ");
             }
         
         } catch (Exception e) {
@@ -466,31 +489,51 @@ public class User_Interface {
         System.out.print("Введите текст для поиска: ");
         String query = scanner.nextLine().toLowerCase();
 
-        List<Object> results = currentCollection.stream()
-            .filter(obj -> {
+
+        
+         List<String> foundLines = IntStream.range(0, currentCollection.size())
+            .mapToObj(i -> {
+                Object obj = currentCollection.get(i);
                 if (obj instanceof Car car) {
-                    return car.getModel().toLowerCase().contains(query) ||
-                           String.valueOf(car.getPower()).contains(query) ||
-                           String.valueOf(car.getYearOfManufacture()).contains(query);
+                    if (car.getModel().toLowerCase().contains(query) ||
+                        String.valueOf(car.getPower()).contains(query) ||
+                        String.valueOf(car.getYearOfManufacture()).contains(query)) {
+                        return i + ": " + car.toString();
+                    }
                 } else if (obj instanceof Student student) {
-                    return student.getSurname().toLowerCase().contains(query) ||
-                           student.getGroupNumber().toLowerCase().contains(query) ||
-                           String.valueOf(student.getAverageScore()).contains(query) ||
-                           student.getReportCardNumber().toLowerCase().contains(query);
+                    if (student.getSurname().toLowerCase().contains(query) ||
+                        student.getGroupNumber().toLowerCase().contains(query) ||
+                        String.valueOf(student.getAverageScore()).contains(query) ||
+                        student.getReportCardNumber().toLowerCase().contains(query)) {
+                        return i + ": " + student.toString();
+                    }
                 } else if (obj instanceof Book book) {
-                    return book.getTitle().toLowerCase().contains(query) ||
-                           book.getAuthor().toLowerCase().contains(query) ||
-                           String.valueOf(book.getNumOfPages()).contains(query);
+                    if (book.getTitle().toLowerCase().contains(query) ||
+                        book.getAuthor().toLowerCase().contains(query) ||
+                        String.valueOf(book.getNumOfPages()).contains(query)) {
+                        return i + ": " + book.toString();
+                    }
                 }
-                return false;
+                return null;
             })
+            .filter(Objects::nonNull)
             .toList();
 
-        if (!results.isEmpty()) {
-            System.out.println("Найдено " + results.size() + " элементов:");
-            printCollection(results, 10);
+        if (!foundLines.isEmpty()) {
+            System.out.println("Найдено " + foundLines.size() + " элементов:");
+            
+            foundLines.stream()
+                .limit(10)
+                .forEach(System.out::println);
+
+            
+            ResultSaver.saveSearchResults(foundLines, "Поиск по всем полям: \"" + query + "\"");
+
         } else {
             System.out.println("Ничего не найдено.");
+
+            // Сохраняем факт отсутствия результата
+            ResultSaver.saveSearchResults(List.of(), "Поиск по всем полям: \"" + query + "\" → ничего не найдено");
         }
     }
         
@@ -501,8 +544,6 @@ public class User_Interface {
         return;
     }
 
-    //System.out.print("Введите имя файла для сохранения (например: sortedCars.txt): ");
-    //String fileName = scanner.nextLine();
 
     try {
         switch (currentType) {
@@ -547,7 +588,71 @@ public class User_Interface {
         }
         return scanner.nextInt();
     }
+   
+    private static void countElementOccurrences() {
+        if (currentCollection == null || currentCollection.isEmpty()) {
+            System.out.println("Сначала заполните коллекцию!");
+            return;
+        }
 
+        scanner.nextLine(); // очистка буфера
+        System.out.print("Введите значение для подсчёта вхождений: ");
+        String input = scanner.nextLine();
+
+        Comparator<?> comparator = null;
+        Object searchElement = null;
+
+        switch (currentType) {
+            case "Car":
+                searchElement = new Car.Builder()
+                    .setModel(input)
+                    .setPower(0)
+                    .setYearOfManufacture(0)
+                    .build();
+                comparator = (Comparator<Car>) (c1, c2) -> c1.getModel().compareTo(c2.getModel());
+                break;
+
+            case "Student":
+                searchElement = new Student.Builder()
+                    .setReportCardNumber(input)
+                    .setGroupNumber("")
+                    .setAverageScore(0f)
+                    .build();
+                comparator = (Comparator<Student>) (s1, s2) -> s1.getReportCardNumber().compareTo(s2.getReportCardNumber());
+                break;
+
+            case "Book":
+                searchElement = new Book.Builder()
+                    .setTitle(input)
+                    .setAuthors("")
+                    .setNumOfPages(0)
+                    .build();
+                comparator = (Comparator<Book>) (b1, b2) -> b1.getTitle().compareTo(b2.getTitle());
+                break;
+
+            default:
+                System.out.println("Неизвестный тип данных.");
+                return;
+        }
+
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> list = (List<Object>) currentCollection;
+
+            // ⚠️ ВЫЗЫВАЕМ МЕТОД — ОН САМ ВЫВОДИТ РЕЗУЛЬТАТ!
+            NumEntriesInList.findNumEntries(
+                searchElement,
+                (List<Object>) list,
+                (Comparator<Object>) comparator
+            );
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("❌ Операция прервана.");
+        } catch (Exception e) {
+            System.err.println("❌ Ошибка при подсчёте: " + e.getMessage());
+        }
+    }
 
 
     private static void printCollection(List<?> collection, int limit) {                             //вывод доллекции
