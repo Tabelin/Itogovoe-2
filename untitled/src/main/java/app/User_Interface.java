@@ -9,9 +9,11 @@ import generator.GenerateCar;
 import generator.GenerateStudent;
 import input.ManualInput;
 import input.ResultSaver;
+import java.io.InputStreamReader;
 import java.util.Arrays;                      
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;                   
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -21,13 +23,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import number_entries_in_list.NumEntriesInList;
 import sort.AdditionalSorter;
-import sort.MergeSort;                    
+import sort.MergeSort;
 import writing.WriteClass;  
 
 
 public class User_Interface {
-
-    private static Scanner scanner = new Scanner(System.in);
+    
+    private static Scanner scanner;
     private static List<?> currentCollection = null;
     private static ToIntFunction<?> extractor;
     private static String currentType = "";
@@ -35,11 +37,19 @@ public class User_Interface {
     private static final ExecutorService executor = Executors.newCachedThreadPool();
     
      public static void main(String[] args) {
+         try {
+                InputStreamReader reader = new InputStreamReader(System.in, java.nio.charset.StandardCharsets.UTF_8);
+                scanner = new Scanner(reader);
+            } catch (Exception e) {
+                System.err.println("Ошибка при инициализации сканера: " + e.getMessage());
+                return;
+            }
+        System.out.println();    
         System.out.println("xxx   Приложение для сортировки и поиска   xxx");
 
         while (true) {
             showMainMenu();
-            int choice = getIntInput("Выберите действие: ");
+            int choice = getIntInput("    Выберите действие: ");
 
             switch (choice) {
                 case 1:
@@ -75,9 +85,15 @@ public class User_Interface {
                     countElementOccurrences(); // нужно добавить сюда, что мы можем передавать;
     
                     break;
-
-
                 case 7:
+                    if (currentCollection == null || currentCollection.isEmpty()) {
+                        System.out.println("Сначала заполните коллекцию!");
+                        break;
+                    }
+                    printCollection(currentCollection, 10);
+                    break;
+                       
+                case 8:
                     System.out.println("Выход");
                     return;
                 default:
@@ -86,21 +102,29 @@ public class User_Interface {
         }
     }
     private static void showMainMenu() {
-        System.out.println("     Меню");
+         System.out.println();  
+        System.out.println("                     Меню");
         System.out.println("1. Выбрать тип данных (Car / Student / Book)");
 
          if (!currentType.isEmpty()) {
-             System.out.println("Текущий тип: " + currentType);
+             System.out.println("   Текущий тип: " + currentType);
          } else {
-             System.out.println("Тип данных: не выбран");
+             System.out.println("   Тип данных: не выбран");
          }
 
         System.out.println("2. Заполнить коллекцию");
+         if (currentCollection == null || currentCollection.isEmpty()) {
+            System.out.println("Коллекция пуста");
+        } else {
+            System.out.println("Количество элементов: " + currentCollection.size());
+        }
+        
         System.out.println("3. Сортировать");
         System.out.println("4. Найти элемент (бинарный поиск)");
         System.out.println("5. Сохранить в файл");
         System.out.println("6. Вывод количеств вхождений элемента в список");
-        System.out.println("7. Выход");
+        System.out.println("7. показать коллекцию");
+        System.out.println("8. Выход");
     }
 
      private static void selectDataType() {                                             // 1 выбор типа данных
@@ -387,11 +411,11 @@ public class User_Interface {
             System.out.println(" Коллекция успешно отсортирована!");
            
             // Показать первые 5 элементов
-            System.out.println("Первые 5 элементов после сортировки:");
-            for (int i = 0; i < Math.min(5, currentCollection.size()); i++) {
-                printCollection(currentCollection, 10);
-                ResultSaver.saveWithIndex(currentCollection, "Отсортированная коллекция (" + currentType + ") ");
-            }
+            System.out.println("Первые 10 элементов после сортировки:");
+            
+            printCollection(currentCollection, 10);
+            ResultSaver.saveWithIndex(currentCollection, "Отсортированная коллекция (" + currentType + ") ");
+            
         
         } catch (Exception e) {
             System.err.println("Ошибка при сортировке: " + e.getMessage());
@@ -503,8 +527,6 @@ public class User_Interface {
             System.out.println("Сначала заполните коллекцию!");
             return;
         }
-
-             scanner.nextLine();
         System.out.print("Введите модель: ");
         String model = scanner.nextLine().trim();
 
@@ -543,8 +565,6 @@ public class User_Interface {
 
         @SuppressWarnings("unchecked")
         List<Car> cars = (List<Car>) currentCollection;
-            System.out.println(model+power+year+"dd");
-
 
             int countEntries=0;
             try{
@@ -574,20 +594,20 @@ public class User_Interface {
                 System.out.println("Модель: " + car.getModel() + " Мощность: " + car.getPower() + " л.с. Год: " + car.getYearOfManufacture());
             } else if (obj instanceof Student student) {
                 System.out.println("Группа: " + student.getGroupNumber() +
-                        " Балл: " + String.format("%.2f", student.getAverageScore()) +
+                        " Балл: " + String.format(Locale.US,"%.2f", student.getAverageScore()) +
                         " Номер зачетки: " + student.getReportCardNumber());
             } else if (obj instanceof Book book) {
-                System.out.println("Название: " + book.getTitle() +
-                        " Автор: " + book.getAuthor() +
+                System.out.println(" Автор: " + book.getAuthor() +
+                        " Название: " + book.getTitle() +
                         " Страниц: " + book.getNumOfPages());
             }
         }
     }
 
     private static void searchCar() {
-        scanner.nextLine();
+
         System.out.print("Введите модель: ");
-        String model = scanner.nextLine().trim();
+        String model = scanner.nextLine();
 
          int power;
 
@@ -624,9 +644,6 @@ public class User_Interface {
 
         @SuppressWarnings("unchecked")
         List<Car> cars = (List<Car>) currentCollection;
-            System.out.println(model+power+year);
-
-
 
         int index = BinSearch.binSearch(cars, searchCar, comparator);
 
@@ -639,19 +656,6 @@ public class User_Interface {
     }
 
     private static void searchStudent() {
-
-        System.out.print("Введите номер зачётки: ");
-        int reportCardNumber;
-        while (true) {
-            try {
-                System.out.print("Введите номер зачётки (число): ");
-                reportCardNumber = Integer.parseInt(scanner.nextLine().trim());
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите целое число.");
-            }
-        }
-
         int groupNumber;
         while (true) {
             try {
@@ -662,19 +666,33 @@ public class User_Interface {
                 System.out.println("Ошибка: введите число.");
             }
         }
-
         float averageScore;
         while (true) {
             try {
                 System.out.print("Введите средний балл (от 0 до 5): ");
-                averageScore = Float.parseFloat(scanner.nextLine().trim());
+                String input = scanner.nextLine().trim();
+            
+                input = input.replace(',', '.');
+            
+                averageScore = Float.parseFloat(input);
+            
                 if (averageScore < 0 || averageScore > 5) {
                     System.out.println("Балл должен быть от 0 до 5.");
                     continue;
                 }
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите число.");
+                System.out.println("Ошибка: введите число (можно использовать точку или запятую).");
+            }
+        }
+         System.out.print("Введите номер зачётки: ");
+        int reportCardNumber;
+        while (true) {
+            try {
+                reportCardNumber = Integer.parseInt(scanner.nextLine().trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите целое число.");
             }
         }
 
@@ -688,11 +706,9 @@ public class User_Interface {
 
         @SuppressWarnings("unchecked")
         List<Student> students = (List<Student>) currentCollection;
-
-         System.out.println(reportCardNumber+groupNumber+averageScore);              //Введите номер зачётки: Введите номер зачётки (число): 71404
-                                                                                     //Введите номер группы: 128
-        int index = BinSearch.binSearch(students, searchStudent, comparator);        //Введите средний балл (от 0 до 5): 3.12
-                                                                                     //не найден выводит 71535.12 ?
+                                                                                    
+        int index = BinSearch.binSearch(students, searchStudent, comparator);      
+                                                                                     
         if (index != -1) {
             System.out.println("Элемент найден на позиции: " + index);
             System.out.println("Найденный студент: " + students.get(index));
@@ -702,7 +718,6 @@ public class User_Interface {
     }
 
     private static void searchBook() {
-        scanner.nextLine();
 
         System.out.print("Введите автора: ");
         String author = scanner.nextLine().trim();
