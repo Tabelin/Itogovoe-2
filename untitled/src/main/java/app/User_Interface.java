@@ -49,6 +49,7 @@ public class User_Interface {
 
             switch (choice) {
                 case 1:
+                    currentCollection = null;
                     selectDataType();
                     break;
                 case 2:
@@ -524,6 +525,25 @@ public class User_Interface {
             System.out.println("Сначала заполните коллекцию!");
             return;
         }
+
+         switch (currentType) {
+        case "Car":
+            countCarOccurrences();
+            break;
+        case "Student":
+            countStudentOccurrences();
+            break;
+        case "Book":
+            countBookOccurrences();
+            break;
+        default:
+            System.out.println("Неизвестный тип данных.");
+        }
+
+    }
+
+    private static void countCarOccurrences() {
+    
         System.out.print("Введите модель: ");
         String model = scanner.nextLine().trim();
 
@@ -540,41 +560,151 @@ public class User_Interface {
     }
 
     int year;
+    while (true) {
+        try {
+            System.out.print("Введите год выпуска: ");
+            year = Integer.parseInt(scanner.nextLine().trim());
+            break;
+        } catch (NumberFormatException e) {
+            System.out.println("Введите число.");
+        }
+    }
+    Car searchCar = new Car.Builder()
+        .setModel(model)
+        .setPower(power)
+        .setYearOfManufacture(year)
+        .build();
+    @SuppressWarnings("unchecked")
+    Comparator<Car> comparator = (Comparator<Car>) getMultiFieldComparator();
+    if (comparator == null) return;
+    @SuppressWarnings("unchecked")
+    List<Car> cars = (List<Car>) currentCollection;
+        int countEntries=0;
+        try{
+            
+            countEntries = NumEntriesInList.findNumEntries(searchCar,cars,comparator);
+            } catch (InterruptedException e) {
+            System.out.println("Введите число.");
+        
+        }
+        System.out.println("количество вхождений " +countEntries);
+
+    }
+
+    private static void countStudentOccurrences() {
+
+        int groupNumber;
         while (true) {
             try {
-                System.out.print("Введите год выпуска: ");
-                year = Integer.parseInt(scanner.nextLine().trim());
+                System.out.print("Введите номер группы: ");
+                groupNumber = Integer.parseInt(scanner.nextLine().trim());
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("Введите число.");
+                System.out.println("Ошибка: введите число.");
+            }
+        }
+        float averageScore;
+        while (true) {
+            try {
+                System.out.print("Введите средний балл (от 0 до 5): ");
+                String input = scanner.nextLine().trim();
+            
+                input = input.replace(',', '.');
+            
+                averageScore = Float.parseFloat(input);
+            
+                if (averageScore < 0 || averageScore > 5) {
+                    System.out.println("Балл должен быть от 0 до 5.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число (можно использовать точку или запятую).");
+            }
+        }
+         System.out.print("Введите номер зачётки: ");
+
+        int reportCardNumber;
+        while (true) {
+            try {
+                reportCardNumber = Integer.parseInt(scanner.nextLine().trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите целое число.");
             }
         }
 
-        Car searchCar = new Car.Builder()
-            .setModel(model)
-            .setPower(power)
-            .setYearOfManufacture(year)
+        @SuppressWarnings("unchecked")
+        List<Student> students = (List<Student>) currentCollection;
+
+        Comparator<Student> comparator = (Comparator<Student>) getMultiFieldComparator();
+
+
+        Student searchStudent = new Student.Builder()
+            .setGroupNumber(String.valueOf(groupNumber))
+            .setAverageScore(averageScore)
+            .setReportCardNumber(reportCardNumber)
+            .build();   
+
+
+        int countEntries = 0;
+        try {
+            countEntries = NumEntriesInList.findNumEntries(searchStudent, students, comparator);
+            } catch (InterruptedException e) {
+            System.out.println("Введите число.");
+        
+        }
+        System.out.println("количество вхождений " + countEntries);
+    }
+
+    private static void countBookOccurrences() {
+
+       
+        System.out.print("Введите автора: ");
+        String author = scanner.nextLine().trim();
+
+        System.out.print("Введите название книги: ");
+        String title = scanner.nextLine().trim();
+
+        int numOfPages;
+        while (true) {
+            try {
+                System.out.print("Введите количество страниц: ");
+                numOfPages = Integer.parseInt(scanner.nextLine().trim());
+                if (numOfPages <= 0) {
+                    System.out.println("Количество страниц должно быть положительным.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число.");
+            }
+        }
+
+        Book searchBook = new Book.Builder()
+            .setAuthor(author)
+            .setTitle(title)
+            .setNumOfPages(numOfPages)
             .build();
 
-        @SuppressWarnings("unchecked")
-        Comparator<Car> comparator = (Comparator<Car>) getMultiFieldComparator();
-        if (comparator == null) return;
+        Comparator<Book> comparator = (Comparator<Book>) getMultiFieldComparator();
 
         @SuppressWarnings("unchecked")
-        List<Car> cars = (List<Car>) currentCollection;
+        List<Book> books = (List<Book>) currentCollection;
 
-            int countEntries=0;
-            try{
-                
-                countEntries = NumEntriesInList.findNumEntries(searchCar,cars,comparator);
-                } catch (InterruptedException e) {
-                System.out.println("Введите число.");
-            
-            }
-            System.out.println("количество вхождений " +countEntries);
-
-    
+        int countEntries = 0;
+        try {
+            countEntries = NumEntriesInList.findNumEntries(searchBook, books, comparator);
+            } catch (InterruptedException e) {
+            System.out.println("Введите число.");
+        
         }
+        System.out.println("количество вхождений " + countEntries);
+    }
+
+
+
+
     private static void printCollection(List<?> collection, int limit) {                             //вывод коллекции
     if (collection == null || collection.isEmpty()) {
         System.out.println("Коллекция пуста.");
