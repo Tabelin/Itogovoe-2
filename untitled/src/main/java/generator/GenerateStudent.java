@@ -14,7 +14,8 @@ public class GenerateStudent {
     }
 
     private static float generateRandomAverageScore() {
-        return 2.0f + random.nextFloat() * 3.0f; // от 2.0 до 5.0
+        float raw = 2.0f + random.nextFloat() * 3.0f; // от 2.0 до 5.0
+        return Math.round(raw * 100) / 100.0f;
     }
 
     private static Integer generateRandomReportCardNumber() {
