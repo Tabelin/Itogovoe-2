@@ -5,26 +5,22 @@ import data.Book;
 import data.Car;
 import data.Student;
 import generator.GenerateBook;
-import generator.GenerateCar;                 
+import generator.GenerateCar;
 import generator.GenerateStudent;
 import input.ManualInput;
 import input.ResultSaver;
+import number_entries_in_list.NumEntriesInList;
+import sort.AdditionalSorter;
+import sort.MergeSort;
+import writing.WriteClass;
+
 import java.io.InputStreamReader;
-import java.util.Arrays;                      
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;                   
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import number_entries_in_list.NumEntriesInList;
-import sort.AdditionalSorter;
-import sort.MergeSort;
-import writing.WriteClass;  
 
 
 public class User_Interface {
@@ -386,7 +382,7 @@ public class User_Interface {
 
         int mode = getIntInput("Ваш выбор: ");
 
-        Comparator<?> comparator;
+        Comparator<?> comparator = null;
 
         switch (mode) {
             
@@ -395,6 +391,7 @@ public class User_Interface {
                 break;
             case 2:
                 startAdditionalSorting(currentCollection, extractor);
+                break;
             default:
                 System.out.println("Неверный ввод.");        
                 return;                                             
